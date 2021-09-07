@@ -38,6 +38,6 @@ if ($token !== '') {
 	header('Location: ' . $urlGenerator->linkToRoute($route, ['token' => $token]));
 } else {
 	http_response_code(404);
-	$tmpl = new OCP\Template('', '404', 'guest');
+	$tmpl = new OCP\Template('', '404-file', 'guest');
 	print_unescaped($tmpl->fetchPage());
 }

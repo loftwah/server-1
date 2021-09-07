@@ -244,6 +244,9 @@ script('settings', [
 	</div>
 
 	<div class="profile-settings-container">
+		<div class="personal-settings-setting-box">
+			<div id="vue-profilesection" class="section"></div>
+		</div>
 		<div class="personal-settings-setting-box personal-settings-language-box">
 			<div id="vue-languagesection" class="section"></div>
 		</div>

@@ -67,3 +67,13 @@ export function validateLanguage(input) {
 		&& input.name !== ''
 		&& input.name !== undefined
 }
+
+/**
+ * Validate the enable profile input
+ *
+ * @param {boolean} input the input
+ * @returns {boolean}
+ */
+export function validateEnableProfile(input) {
+	return typeof input === 'boolean'
+}

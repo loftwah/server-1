@@ -21,7 +21,7 @@
  */
 
 /*
- * SYNC to be kept in sync with lib/public/Accounts/IAccountManager.php
+ * SYNC to be kept in sync with `lib/public/Accounts/IAccountManager.php`
  */
 
 import { translate as t } from '@nextcloud/l10n'
@@ -30,11 +30,16 @@ import { translate as t } from '@nextcloud/l10n'
 export const ACCOUNT_PROPERTY_ENUM = Object.freeze({
 	ADDRESS: 'address',
 	AVATAR: 'avatar',
+	BIOGRAPHY: 'biography',
+	COMPANY: 'company',
 	DISPLAYNAME: 'displayname',
+	HEADLINE: 'headline',
+	JOB_TITLE: 'job_title',
 	EMAIL: 'email',
 	EMAIL_COLLECTION: 'additional_mail',
 	NOTIFICATION_EMAIL: 'notify_email',
 	PHONE: 'phone',
+	PROFILE_ENABLED: 'profile_enabled',
 	TWITTER: 'twitter',
 	WEBSITE: 'website',
 })
@@ -43,10 +48,15 @@ export const ACCOUNT_PROPERTY_ENUM = Object.freeze({
 export const ACCOUNT_PROPERTY_READABLE_ENUM = Object.freeze({
 	ADDRESS: t('settings', 'Address'),
 	AVATAR: t('settings', 'Avatar'),
+	BIOGRAPHY: t('settings', 'Biography'),
+	COMPANY: t('settings', 'Company'),
 	DISPLAYNAME: t('settings', 'Full name'),
+	HEADLINE: t('settings', 'Headline'),
+	JOB_TITLE: t('settings', 'Job Title'),
 	EMAIL: t('settings', 'Email'),
 	EMAIL_COLLECTION: t('settings', 'Additional email'),
 	PHONE: t('settings', 'Phone number'),
+	PROFILE_ENABLED: t('settings', 'Profile'),
 	TWITTER: t('settings', 'Twitter'),
 	WEBSITE: t('settings', 'Website'),
 })
@@ -73,10 +83,15 @@ export const SCOPE_ENUM = Object.freeze({
 export const PROPERTY_READABLE_SUPPORTED_SCOPES_ENUM = Object.freeze({
 	[ACCOUNT_PROPERTY_READABLE_ENUM.ADDRESS]: [SCOPE_ENUM.LOCAL, SCOPE_ENUM.PRIVATE],
 	[ACCOUNT_PROPERTY_READABLE_ENUM.AVATAR]: [SCOPE_ENUM.LOCAL, SCOPE_ENUM.PRIVATE],
+	[ACCOUNT_PROPERTY_READABLE_ENUM.BIOGRAPHY]: [SCOPE_ENUM.LOCAL],
+	[ACCOUNT_PROPERTY_READABLE_ENUM.COMPANY]: [SCOPE_ENUM.LOCAL],
 	[ACCOUNT_PROPERTY_READABLE_ENUM.DISPLAYNAME]: [SCOPE_ENUM.LOCAL],
+	[ACCOUNT_PROPERTY_READABLE_ENUM.HEADLINE]: [SCOPE_ENUM.LOCAL],
+	[ACCOUNT_PROPERTY_READABLE_ENUM.JOB_TITLE]: [SCOPE_ENUM.LOCAL],
 	[ACCOUNT_PROPERTY_READABLE_ENUM.EMAIL]: [SCOPE_ENUM.LOCAL],
 	[ACCOUNT_PROPERTY_READABLE_ENUM.EMAIL_COLLECTION]: [SCOPE_ENUM.LOCAL],
 	[ACCOUNT_PROPERTY_READABLE_ENUM.PHONE]: [SCOPE_ENUM.LOCAL, SCOPE_ENUM.PRIVATE],
+	[ACCOUNT_PROPERTY_READABLE_ENUM.PROFILE_ENABLED]: [SCOPE_ENUM.LOCAL],
 	[ACCOUNT_PROPERTY_READABLE_ENUM.TWITTER]: [SCOPE_ENUM.LOCAL, SCOPE_ENUM.PRIVATE],
 	[ACCOUNT_PROPERTY_READABLE_ENUM.WEBSITE]: [SCOPE_ENUM.LOCAL, SCOPE_ENUM.PRIVATE],
 })

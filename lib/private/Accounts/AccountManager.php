@@ -337,7 +337,7 @@ class AccountManager implements IAccountManager {
 			return $this->buildDefaultUserRecord($user);
 		}
 
-		return $this->addMissingDefaultValues($userDataArray);
+		return $this->addMissingDefaultValues($userDataArray, $this->buildDefaultUserRecord($user));
 	}
 
 	public function searchUsers(string $property, array $values): array {
@@ -465,14 +465,18 @@ class AccountManager implements IAccountManager {
 	}
 
 	/**
-	 * make sure that all expected data are set
-	 *
+	 * Make sure that all expected data are set
 	 */
-	protected function addMissingDefaultValues(array $userData): array {
-		foreach ($userData as $i => $value) {
-			if (!isset($value['verified'])) {
-				$userData[$i]['verified'] = self::NOT_VERIFIED;
+	protected function addMissingDefaultValues(array $userData, array $defaultUserData): array {
+		foreach ($defaultUserData as $i => $value) {
+			// If property doesn't exists, initialize it
+			if (!array_key_exists($i, $userData)) {
+				$userData[$i] = [];
 			}
+
+			// Merge and extend default missing values
+			$defaultValueIndex = array_search($value['name'], array_column($defaultUserData, 'name'));
+			$userData[$i] = array_merge($defaultUserData[$defaultValueIndex], $userData[$i]);
 		}
 
 		return $userData;
@@ -629,7 +633,6 @@ class AccountManager implements IAccountManager {
 	 */
 	protected function buildDefaultUserRecord(IUser $user) {
 		return [
-
 			[
 				'name' => self::PROPERTY_DISPLAYNAME,
 				'value' => $user->getDisplayName(),
@@ -677,6 +680,34 @@ class AccountManager implements IAccountManager {
 				'verified' => self::NOT_VERIFIED,
 			],
 
+			[
+				'name' => self::PROPERTY_COMPANY,
+				'value' => '',
+				'scope' => self::SCOPE_LOCAL,
+			],
+
+			[
+				'name' => self::PROPERTY_JOB_TITLE,
+				'value' => '',
+				'scope' => self::SCOPE_LOCAL,
+			],
+
+			[
+				'name' => self::PROPERTY_HEADLINE,
+				'value' => '',
+				'scope' => self::SCOPE_LOCAL,
+			],
+
+			[
+				'name' => self::PROPERTY_BIOGRAPHY,
+				'value' => '',
+				'scope' => self::SCOPE_LOCAL,
+			],
+
+			[
+				'name' => self::PROPERTY_PROFILE_ENABLED,
+				'value' => '1',
+			],
 		];
 	}
 

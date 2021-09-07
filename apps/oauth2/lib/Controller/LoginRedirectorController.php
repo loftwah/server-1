@@ -88,7 +88,7 @@ class LoginRedirectorController extends Controller {
 			$params = [
 				'content' => $this->l->t('Your client is not authorized to connect. Please inform the administrator of your client.'),
 			];
-			return new TemplateResponse('core', '404', $params, 'guest');
+			return new TemplateResponse('core', '404-file', $params, 'guest');
 		}
 
 		if ($response_type !== 'code') {

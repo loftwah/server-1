@@ -21,18 +21,16 @@
  */
 
 import Vue from 'vue'
+import { generateFilePath } from '@nextcloud/router'
 import { getRequestToken } from '@nextcloud/auth'
 import { translate as t } from '@nextcloud/l10n'
-import '@nextcloud/dialogs/styles/toast.scss'
 
 import logger from './logger'
 
-import DisplayNameSection from './components/PersonalInfo/DisplayNameSection/DisplayNameSection'
-import EmailSection from './components/PersonalInfo/EmailSection/EmailSection'
-import LanguageSection from './components/PersonalInfo/LanguageSection/LanguageSection'
-import ProfileSection from './components/PersonalInfo/ProfileSection/ProfileSection'
+import Profile from './views/Profile'
 
 __webpack_nonce__ = btoa(getRequestToken())
+__webpack_public_path__ = generateFilePath('core', '', 'js/')
 
 Vue.mixin({
 	props: {
@@ -43,12 +41,5 @@ Vue.mixin({
 	},
 })
 
-const DisplayNameView = Vue.extend(DisplayNameSection)
-const EmailView = Vue.extend(EmailSection)
-const LanguageView = Vue.extend(LanguageSection)
-const ProfileView = Vue.extend(ProfileSection)
-
-new DisplayNameView().$mount('#vue-displaynamesection')
-new EmailView().$mount('#vue-emailsection')
-new LanguageView().$mount('#vue-languagesection')
-new ProfileView().$mount('#vue-profilesection')
+const View = Vue.extend(Profile)
+new View().$mount('#vue-profile')

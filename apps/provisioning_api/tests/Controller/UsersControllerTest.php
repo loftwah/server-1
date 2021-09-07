@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @copyright Copyright (c) 2016, ownCloud, Inc.
  *
@@ -38,6 +39,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  *
  */
+
 namespace OCA\Provisioning_API\Tests\Controller;
 
 use Exception;
@@ -165,11 +167,12 @@ class UsersControllerTest extends TestCase {
 			->with('MyCustomSearch')
 			->willReturn(['Admin' => [], 'Foo' => [], 'Bar' => []]);
 
-		$expected = ['users' => [
-			'Admin',
-			'Foo',
-			'Bar',
-		],
+		$expected = [
+			'users' => [
+				'Admin',
+				'Foo',
+				'Bar',
+			],
 		];
 		$this->assertEquals($expected, $this->api->getUsers('MyCustomSearch')->getData());
 	}
@@ -687,7 +690,7 @@ class UsersControllerTest extends TestCase {
 
 		$this->assertTrue(key_exists(
 			'id',
-				$this->api->addUser('NewUser', 'PasswordOfTheNewUser', '', '', ['ExistingGroup'])->getData()
+			$this->api->addUser('NewUser', 'PasswordOfTheNewUser', '', '', ['ExistingGroup'])->getData()
 		));
 	}
 
@@ -711,7 +714,8 @@ class UsersControllerTest extends TestCase {
 		$this->logger
 			->expects($this->once())
 			->method('error')
-			->with('Failed addUser attempt with exception.',
+			->with(
+				'Failed addUser attempt with exception.',
 				[
 					'app' => 'ocs_api',
 					'exception' => $exception
@@ -998,6 +1002,10 @@ class UsersControllerTest extends TestCase {
 			IAccountManager::PROPERTY_PHONE => ['value' => 'phone'],
 			IAccountManager::PROPERTY_TWITTER => ['value' => 'twitter'],
 			IAccountManager::PROPERTY_WEBSITE => ['value' => 'website'],
+			IAccountManager::PROPERTY_COMPANY => ['value' => 'company'],
+			IAccountManager::PROPERTY_JOB_TITLE => ['value' => 'job_title'],
+			IAccountManager::PROPERTY_HEADLINE => ['value' => 'headline'],
+			IAccountManager::PROPERTY_BIOGRAPHY => ['value' => 'biography'],
 		]);
 		$this->config
 			->expects($this->at(0))
@@ -1067,6 +1075,11 @@ class UsersControllerTest extends TestCase {
 				'setPassword' => true,
 			],
 			'additional_mail' => [],
+			'company' => 'company',
+			'job_title' => 'job_title',
+			'headline' => 'headline',
+			'biography' => 'biography',
+			'profile_enabled' => '1',
 			'notify_email' => null,
 		];
 		$this->assertEquals($expected, $this->invokePrivate($this->api, 'getUserData', ['UID']));
@@ -1166,6 +1179,10 @@ class UsersControllerTest extends TestCase {
 			IAccountManager::PROPERTY_PHONE => ['value' => 'phone'],
 			IAccountManager::PROPERTY_TWITTER => ['value' => 'twitter'],
 			IAccountManager::PROPERTY_WEBSITE => ['value' => 'website'],
+			IAccountManager::PROPERTY_COMPANY => ['value' => 'company'],
+			IAccountManager::PROPERTY_JOB_TITLE => ['value' => 'job_title'],
+			IAccountManager::PROPERTY_HEADLINE => ['value' => 'headline'],
+			IAccountManager::PROPERTY_BIOGRAPHY => ['value' => 'biography'],
 		]);
 
 		$this->l10nFactory
@@ -1196,6 +1213,11 @@ class UsersControllerTest extends TestCase {
 				'setPassword' => true,
 			],
 			'additional_mail' => [],
+			'company' => 'company',
+			'job_title' => 'job_title',
+			'headline' => 'headline',
+			'biography' => 'biography',
+			'profile_enabled' => '1',
 			'notify_email' => null,
 		];
 		$this->assertEquals($expected, $this->invokePrivate($this->api, 'getUserData', ['UID']));
@@ -1334,6 +1356,10 @@ class UsersControllerTest extends TestCase {
 			IAccountManager::PROPERTY_PHONE => ['value' => 'phone'],
 			IAccountManager::PROPERTY_TWITTER => ['value' => 'twitter'],
 			IAccountManager::PROPERTY_WEBSITE => ['value' => 'website'],
+			IAccountManager::PROPERTY_COMPANY => ['value' => 'company'],
+			IAccountManager::PROPERTY_JOB_TITLE => ['value' => 'job_title'],
+			IAccountManager::PROPERTY_HEADLINE => ['value' => 'headline'],
+			IAccountManager::PROPERTY_BIOGRAPHY => ['value' => 'biography'],
 		]);
 
 		$this->l10nFactory
@@ -1363,6 +1389,11 @@ class UsersControllerTest extends TestCase {
 				'setPassword' => false,
 			],
 			'additional_mail' => [],
+			'company' => 'company',
+			'job_title' => 'job_title',
+			'headline' => 'headline',
+			'biography' => 'biography',
+			'profile_enabled' => '1',
 			'notify_email' => null,
 		];
 		$this->assertEquals($expected, $this->invokePrivate($this->api, 'getUserData', ['UID']));
@@ -3878,6 +3909,11 @@ class UsersControllerTest extends TestCase {
 				IAccountManager::PROPERTY_ADDRESS,
 				IAccountManager::PROPERTY_WEBSITE,
 				IAccountManager::PROPERTY_TWITTER,
+				IAccountManager::PROPERTY_COMPANY,
+				IAccountManager::PROPERTY_JOB_TITLE,
+				IAccountManager::PROPERTY_HEADLINE,
+				IAccountManager::PROPERTY_BIOGRAPHY,
+				IAccountManager::PROPERTY_PROFILE_ENABLED,
 			]],
 			[true, ISetDisplayNameBackend::class, [
 				IAccountManager::PROPERTY_DISPLAYNAME,
@@ -3887,6 +3923,11 @@ class UsersControllerTest extends TestCase {
 				IAccountManager::PROPERTY_ADDRESS,
 				IAccountManager::PROPERTY_WEBSITE,
 				IAccountManager::PROPERTY_TWITTER,
+				IAccountManager::PROPERTY_COMPANY,
+				IAccountManager::PROPERTY_JOB_TITLE,
+				IAccountManager::PROPERTY_HEADLINE,
+				IAccountManager::PROPERTY_BIOGRAPHY,
+				IAccountManager::PROPERTY_PROFILE_ENABLED,
 			]],
 			[true, UserInterface::class, [
 				IAccountManager::PROPERTY_EMAIL,
@@ -3895,6 +3936,11 @@ class UsersControllerTest extends TestCase {
 				IAccountManager::PROPERTY_ADDRESS,
 				IAccountManager::PROPERTY_WEBSITE,
 				IAccountManager::PROPERTY_TWITTER,
+				IAccountManager::PROPERTY_COMPANY,
+				IAccountManager::PROPERTY_JOB_TITLE,
+				IAccountManager::PROPERTY_HEADLINE,
+				IAccountManager::PROPERTY_BIOGRAPHY,
+				IAccountManager::PROPERTY_PROFILE_ENABLED,
 			]],
 		];
 	}
@@ -3941,7 +3987,7 @@ class UsersControllerTest extends TestCase {
 
 		$account = $this->createMock(IAccount::class);
 		$account->method('getProperty')
-		  ->will($this->returnValueMap($mockedProperties));
+			->will($this->returnValueMap($mockedProperties));
 
 		$this->accountManager->expects($this->any())->method('getAccount')
 			->with($targetUser)

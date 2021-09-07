@@ -83,7 +83,7 @@ export default {
 		},
 		labelFor: {
 			type: String,
-			required: true,
+			default: '',
 		},
 		scope: {
 			type: String,
@@ -124,7 +124,7 @@ export default {
 		color: var(--color-text-light);
 
 		&.setting-property {
-			height: 38px;
+			height: 32px;
 		}
 
 		label {

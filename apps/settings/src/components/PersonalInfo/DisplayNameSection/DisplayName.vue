@@ -45,6 +45,7 @@
 
 <script>
 import { showError } from '@nextcloud/dialogs'
+import { emit } from '@nextcloud/event-bus'
 import debounce from 'debounce'
 
 import { savePrimaryDisplayName } from '../../../service/PersonalInfo/DisplayNameService'
@@ -106,6 +107,7 @@ export default {
 			if (status === 'ok') {
 				// Ensure that local state reflects server state
 				this.initialDisplayName = displayName
+				emit('settings:displayName:updated', displayName)
 				this.showCheckmarkIcon = true
 				setTimeout(() => { this.showCheckmarkIcon = false }, 2000)
 			} else {

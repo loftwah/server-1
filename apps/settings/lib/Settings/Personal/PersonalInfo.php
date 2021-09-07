@@ -146,9 +146,11 @@ class PersonalInfo implements ISettings {
 		] + $messageParameters + $languageParameters + $localeParameters;
 
 		$personalInfoParameters = [
+			'userId' => $uid,
 			'displayNames' => $this->getDisplayNames($account),
 			'emails' => $this->getEmails($account),
 			'languages' => $this->getLanguages($user),
+			'profileEnabled' => $this->getProfileEnabled($account),
 		];
 
 		$accountParameters = [
@@ -246,7 +248,7 @@ class PersonalInfo implements ISettings {
 					'locallyVerified' => $property->getLocallyVerified(),
 				];
 			},
-			$account->getPropertyCollection(IAccountManager::COLLECTION_EMAIL)->getProperties()
+			$account->getPropertyCollection(IAccountManager::COLLECTION_EMAIL)->getProperties(),
 		);
 
 		$emails = [
@@ -360,5 +362,19 @@ class PersonalInfo implements ISettings {
 			$messageParameters[$property . 'Message'] = $message;
 		}
 		return $messageParameters;
+	}
+
+	/**
+	 * returns the profile enabled state
+	 *
+	 * @param IAccount $account
+	 * @return bool
+	 */
+	private function getProfileEnabled(IAccount $account): bool {
+		return filter_var(
+				$account->getProperty(IAccountManager::PROPERTY_PROFILE_ENABLED)->getValue(),
+				FILTER_VALIDATE_BOOLEAN,
+				FILTER_NULL_ON_FAILURE,
+		);
 	}
 }

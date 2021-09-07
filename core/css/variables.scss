@@ -45,6 +45,8 @@ $color-placeholder-dark: nc-darken($color-main-background, 20%) !default;
 
 $color-primary: #0082c9 !default;
 $color-primary-light: mix($color-primary, $color-main-background, 10%) !default;
+$color-primary-gradient-dark: #0082c9 !default;
+$color-primary-gradient-light: #30b6ff !default;
 $color-primary-text: #ffffff !default;
 // do not use nc-darken/lighten in case of overriding because
 // primary-text is independent of color-main-text
@@ -101,6 +103,8 @@ $sidebar-min-width: 300px;
 $sidebar-max-width: 500px;
 $list-min-width: 200px;
 $list-max-width: 300px;
+$header-menu-item-height: 44px;
+$header-menu-profile-item-height: 66px;
 
 // mobile. Keep in sync with core/js/js.js
 $breakpoint-mobile: 1024px;
