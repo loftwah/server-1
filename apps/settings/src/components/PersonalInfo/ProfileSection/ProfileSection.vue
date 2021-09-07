@@ -25,29 +25,34 @@
 			:account-property="accountProperty"
 			:is-valid-section="isValidSection" />
 
-		<a
-			:class="{ disabled: buttonDisabled }"
-			:href="profilePageLink">
-			{{ t('settings', 'View your profile') }}
-		</a>
-
 		<ProfileCheckbox
 			:profile-enabled.sync="profileEnabled" />
+
+		<ProfilePreviewCard
+			:company="company"
+			:display-name="displayName"
+			:profile-enabled="profileEnabled"
+			:user-id="userId" />
 	</section>
 </template>
 
 <script>
-import { getCurrentUser } from '@nextcloud/auth'
 import { loadState } from '@nextcloud/initial-state'
-import { generateUrl } from '@nextcloud/router'
+import { subscribe, unsubscribe } from '@nextcloud/event-bus'
 
 import HeaderBar from '../shared/HeaderBar'
 import ProfileCheckbox from './ProfileCheckbox'
+import ProfilePreviewCard from './ProfilePreviewCard'
 
 import { ACCOUNT_PROPERTY_READABLE_ENUM } from '../../../constants/AccountPropertyConstants'
 import { validateEnableProfile } from '../../../utils/validate'
 
-const { profileEnabled, userId } = loadState('settings', 'personalInfoParameters', {})
+const {
+	companyMap: { primaryCompany: { value: company } },
+	displayNameMap: { primaryDisplayName: { value: displayName } },
+	profileEnabled,
+	userId,
+} = loadState('settings', 'personalInfoParameters', {})
 
 export default {
 	name: 'ProfileSection',
@@ -55,33 +60,42 @@ export default {
 	components: {
 		HeaderBar,
 		ProfileCheckbox,
+		ProfilePreviewCard,
 	},
 
 	data() {
 		return {
 			accountProperty: ACCOUNT_PROPERTY_READABLE_ENUM.PROFILE_ENABLED,
+			company,
+			displayName,
 			profileEnabled,
 			userId,
 		}
 	},
 
 	computed: {
-		buttonDisabled() {
-			return !this.profileEnabled
-		},
-
 		isValidSection() {
 			return validateEnableProfile(this.profileEnabled)
 		},
+	},
 
-		profilePageLink() {
-			if (this.profileEnabled) {
-				return generateUrl('u/{userId}', { userId: getCurrentUser().uid })
-			}
-			// Since an anchor element is used rather than a button for better UX,
-			// this hack removes href if the profile is disabled so that disabling pointer-events is not needed to prevent a click from opening a page
-			// and to allow the hover event for styling
-			return null
+	mounted() {
+		subscribe('settings:display-name:updated', this.handleDisplayNameUpdate)
+		subscribe('settings:company:updated', this.handleCompanyUpdate)
+	},
+
+	beforeDestroy() {
+		unsubscribe('settings:display-name:updated', this.handleDisplayNameUpdate)
+		unsubscribe('settings:company:updated', this.handleCompanyUpdate)
+	},
+
+	methods: {
+		handleDisplayNameUpdate(displayName) {
+			this.displayName = displayName
+		},
+
+		handleCompanyUpdate(company) {
+			this.company = company
 		},
 	},
 }
@@ -90,34 +104,6 @@ export default {
 <style lang="scss" scoped>
 section {
 	padding: 10px 10px;
-	display: flex;
-	flex-direction: column;
-
-	a {
-		display: inline-block;
-		margin: 5px auto 16px auto;
-    padding: 10px 20px;
-    background-color: #e6f3fa;
-    color: var(--color-primary);
-    border-radius: var(--border-radius-pill);
-		font-weight: bold;
-
-		&:hover {
-			box-shadow: 0 2px 9px var(--color-box-shadow);
-		}
-
-		&.disabled {
-			cursor: default;
-			background-color: transparent;
-			color: var(--color-text-maxcontrast);
-			opacity: 0.5;
-
-			&:hover {
-				background-color: rgba(127, 127, 127, .15);
-				box-shadow: none;
-			}
-		}
-	}
 
 	&::v-deep button:disabled {
 		cursor: default;

@@ -25,17 +25,17 @@
 	<div class="profile">
 		<div class="profile__header">
 			<div class="profile__header__container">
-				<div class="profile__header__container-placeholder" />
-				<h2 class="profile__header__container-displayname">
+				<div class="profile__header__container__placeholder" />
+				<h2 class="profile__header__container__displayname">
 					{{ displayName }}
 					<button v-if="isCurrentUser"
-						class="primary profile__header__container-button"
+						class="primary profile__header__container__button"
 						@click="openSettings">
 						{{ t('core', 'Edit profile') }}
 					</button>
 				</h2>
 				<div v-if="status.icon || status.message"
-					class="profile__header__container-status"
+					class="profile__header__container__status"
 					@click.prevent.stop="openStatusModal">
 					{{ status.icon }} {{ status.message }}
 				</div>
@@ -61,37 +61,37 @@
 						:default-icon="primaryAction.icon"
 						:menu-title="primaryAction.label"
 						:force-menu="false">
-						<ActionButton
+						<ActionLink
 							:close-after-click="true"
 							:icon="primaryAction.icon"
-							:title="primaryAction.label"
-							@click="primaryAction.cb">
+							:href="primaryAction.href"
+							:title="primaryAction.label">
 							{{ primaryAction.label }}
-						</ActionButton>
+						</ActionLink>
 					</Actions>
 					<div class="user-actions__other">
 						<Actions v-for="action in allActions.slice(1, 4)"
 							:key="action.icon"
 							:default-icon="action.icon"
 							:menu-title="action.label">
-							<ActionButton
+							<ActionLink
 								:close-after-click="true"
 								:icon="action.icon"
-								:title="action.label"
-								@click="action.cb">
+								:href="action.href"
+								:title="action.label">
 								{{ action.label }}
-							</ActionButton>
+							</ActionLink>
 						</Actions>
 						<template v-if="otherActions">
 							<Actions v-for="action in otherActions"
 								:key="action.icon"
 								:force-menu="true">
-								<ActionButton
+								<ActionLink
 									:close-after-click="true"
-									:icon="action.icon"
-									@click="action.cb">
+									:href="action.href"
+									:icon="action.icon">
 									{{ action.label }}
-								</ActionButton>
+								</ActionLink>
 							</Actions>
 						</template>
 					</div>
@@ -113,12 +113,25 @@
 						</p>
 					</div>
 				</div>
-				<div class="profile__blocks-headline">
-					<h3>{{ headline || 'Your headline here!' }}</h3>
-				</div>
-				<div class="profile__blocks-biography">
-					<p>{{ biography || 'Add your biography!' }}</p>
-				</div>
+				<template v-if="headline || biography">
+					<div class="profile__blocks-headline">
+						<h3>{{ headline || 'Your headline here!' }}</h3>
+					</div>
+					<div class="profile__blocks-biography">
+						<p>{{ biography || 'Add your biography!' }}</p>
+					</div>
+				</template>
+				<template v-else>
+					<div class="profile__blocks-empty-info">
+						<AccountIcon
+							decorative
+							title=""
+							fill-color="#4D4D4D"
+							:size="60" />
+						<h3>{{ displayName }} {{ t('core', 'hasn\'t added any info yet') }}</h3>
+						<p>Headline and biography will show up here</p>
+					</div>
+				</template>
 			</div>
 		</div>
 	</div>
@@ -132,13 +145,15 @@ import { generateUrl } from '@nextcloud/router'
 
 import Avatar from '@nextcloud/vue/dist/Components/Avatar'
 import Actions from '@nextcloud/vue/dist/Components/Actions'
-import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
+import ActionLink from '@nextcloud/vue/dist/Components/ActionLink'
 // import Modal from '@nextcloud/vue/dist/Components/Modal'
 // import ProfileSettings from './ProfileSettings'
 // import PhoneIcon from 'vue-material-design-icons/Phone'
 import MapMarkerIcon from 'vue-material-design-icons/MapMarker'
+import AccountIcon from 'vue-material-design-icons/Account'
+import { showError } from '@nextcloud/dialogs'
 
-const { userId, displayName, address, actionParameters } = loadState('core', 'profileParameters', {})
+const { userId, company, jobTitle, displayName, address, actionParameters } = loadState('core', 'profileParameters', {})
 const status = loadState('core', 'status', {})
 
 export default {
@@ -147,7 +162,8 @@ export default {
 	components: {
 		Avatar,
 		Actions,
-		ActionButton,
+		ActionLink,
+		AccountIcon,
 		// PhoneIcon,
 		MapMarkerIcon,
 	},
@@ -158,8 +174,8 @@ export default {
 			displayName,
 			address,
 			status,
-			company: 'Dunder Mifflin Paper Company',
-			jobTitle: 'Sales Representative',
+			company,
+			jobTitle,
 			headline: 'This is my headline!',
 			biography: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.',
 		}
@@ -167,7 +183,7 @@ export default {
 
 	computed: {
 		isCurrentUser() {
-			return getCurrentUser().uid === this.userId
+			return getCurrentUser()?.uid === this.userId
 		},
 
 		primaryAction() {
@@ -182,27 +198,27 @@ export default {
 				talkEnabled: {
 					icon: 'icon-talk',
 					label: `Talk to ${this.displayName}`,
-					cb: this.openTalk,
+					href: generateUrl('apps/spreed?callUser={userId}', { userId }),
 				},
 				email: {
 					icon: 'icon-mail',
 					label: `Email ${actionParameters.email}`,
-					cb: this.sendEmail,
+					href: `mailto:${actionParameters.email}`,
 				},
 				phoneNumber: {
 					icon: 'icon-phone',
 					label: `Call phone number (${actionParameters.phoneNumber})`,
-					cb: this.callPhone,
+					href: `tel:${actionParameters.phoneNumber}`,
 				},
 				website: {
 					icon: 'icon-timezone',
 					label: `Visit website (${actionParameters.website})`,
-					cb: this.openWebsite,
+					href: actionParameters.website,
 				},
 				twitterUsername: {
 					icon: 'icon-twitter',
 					label: `View Twitter profile ${actionParameters.twitterUsername[0] === '@' ? actionParameters.twitterUsername : `@${actionParameters.twitterUsername}`}`,
-					cb: this.openTwitterProfile,
+					href: `https://twitter.com/${actionParameters.twitterUsername}`,
 				},
 			}
 
@@ -236,31 +252,13 @@ export default {
 			const statusMenuItem = document.querySelector('.user-status-menu-item__toggle')
 			if (statusMenuItem) {
 				statusMenuItem.click()
+			} else {
+				showError(t('core', 'Error opening the user status modal, try hard refreshing the page'))
 			}
 		},
 
 		openSettings() {
 			location.href = generateUrl('/settings/user')
-		},
-
-		sendEmail() {
-			location.href = `mailto:${actionParameters.email}`
-		},
-
-		openWebsite() {
-			window.open(actionParameters.website, '_blank')
-		},
-
-		openTalk() {
-			location.href = generateUrl('apps/spreed?callUser={userId}', { userId })
-		},
-
-		callPhone() {
-			location.href = `tel:${actionParameters.phoneNumber}`
-		},
-
-		openTwitterProfile() {
-			window.open(`https://twitter.com/${actionParameters.twitterUsername}`, '_blank')
 		},
 	},
 }
@@ -289,7 +287,6 @@ $content-max-width: 640px;
 		position: sticky;
 		height: 190px;
 		top: -40px;
-		background-image: linear-gradient(40deg, var(--color-primary-gradient-dark) 0%, var(--color-primary-gradient-light) 100%);
 
 		&__container {
 			align-self: flex-end;
@@ -301,15 +298,15 @@ $content-max-width: 640px;
 			grid-template-columns: 230px 1fr;
 			justify-content: center;
 
-			&-placeholder {
+			&__placeholder {
 				grid-row: 1 / 3;
 			}
 
-			&-displayname, &-status {
+			&__displayname, &__status {
 				color: var(--color-primary-text);
 			}
 
-			&-displayname {
+			&__displayname {
 				width: $content-max-width;
 				margin-top: 132px;
 				// Overrides the global style declaration
@@ -324,13 +321,14 @@ $content-max-width: 640px;
 				}
 			}
 
-			&-button {
-				border: 1px solid var(--color-primary-text);
+			&__button {
+				border: none;
+				box-shadow: 0 0 0 1px var(--color-primary-text);
 				margin-left: 10px;
 				margin-top: 10px;
 			}
 
-			&-status {
+			&__status {
 				width: max-content;
 				max-width: $content-max-width;
 				cursor: pointer;
@@ -401,7 +399,7 @@ $content-max-width: 640px;
 		margin: 10px 0 80px 0;
 		display: grid;
 		gap: 16px 0;
-		max-width: $content-max-width;
+		width: $content-max-width;
 
 		&-details {
 			display: flex;
@@ -431,6 +429,20 @@ $content-max-width: 640px;
 
 		h3, p {
 			cursor: text;
+		}
+
+		&-empty-info {
+			margin-top: 80px;
+			margin-right: 100px;
+			display: flex;
+			flex-direction: column;
+			text-align: center;
+
+			h3 {
+				font-weight: bold;
+				font-size: 18px;
+				margin: 8px 0;
+			}
 		}
 	}
 }

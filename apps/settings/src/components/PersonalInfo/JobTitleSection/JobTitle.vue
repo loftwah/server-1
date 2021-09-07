@@ -20,19 +20,19 @@
 -->
 
 <template>
-	<div class="displayname">
+	<div class="jobtitle">
 		<input
-			id="displayname"
+			id="jobtitle"
 			type="text"
-			:placeholder="t('settings', 'Your full name')"
-			:value="displayName"
+			:placeholder="t('settings', 'Your job title')"
+			:value="jobTitle"
 			autocapitalize="none"
 			autocomplete="on"
 			autocorrect="off"
 			required
-			@input="onDisplayNameChange">
+			@input="onJobTitleChange">
 
-		<div class="displayname__actions-container">
+		<div class="jobtitle__actions-container">
 			<transition name="fade">
 				<span v-if="showCheckmarkIcon" class="icon-checkmark" />
 				<span v-else-if="showErrorIcon" class="icon-error" />
@@ -50,13 +50,11 @@ import { ACCOUNT_PROPERTY_ENUM } from '../../../constants/AccountPropertyConstan
 import { savePrimaryAccountProperty } from '../../../service/PersonalInfo/PersonalInfoService'
 import { validateStringInput } from '../../../utils/validate'
 
-// TODO Global avatar updating on events (e.g. updating the displayname) is currently being handled by global js, investigate using https://github.com/nextcloud/nextcloud-event-bus for global avatar updating
-
 export default {
-	name: 'DisplayName',
+	name: 'JobTitle',
 
 	props: {
-		displayName: {
+		jobTitle: {
 			type: String,
 			required: true,
 		},
@@ -68,7 +66,7 @@ export default {
 
 	data() {
 		return {
-			initialDisplayName: this.displayName,
+			initialJobTitle: this.jobTitle,
 			localScope: this.scope,
 			showCheckmarkIcon: false,
 			showErrorIcon: false,
@@ -76,37 +74,37 @@ export default {
 	},
 
 	methods: {
-		onDisplayNameChange(e) {
-			this.$emit('update:display-name', e.target.value)
-			this.debounceDisplayNameChange(e.target.value.trim())
+		onJobTitleChange(e) {
+			this.$emit('update:job-title', e.target.value)
+			this.debounceJobTitleChange(e.target.value.trim())
 		},
 
-		debounceDisplayNameChange: debounce(async function(displayName) {
-			if (validateStringInput(displayName)) {
-				await this.updatePrimaryDisplayName(displayName)
+		debounceJobTitleChange: debounce(async function(jobTitle) {
+			if (validateStringInput(jobTitle)) {
+				await this.updatePrimaryJobTitle(jobTitle)
 			}
 		}, 500),
 
-		async updatePrimaryDisplayName(displayName) {
+		async updatePrimaryJobTitle(jobTitle) {
 			try {
-				const responseData = await savePrimaryAccountProperty(ACCOUNT_PROPERTY_ENUM.DISPLAYNAME, displayName)
+				const responseData = await savePrimaryAccountProperty(ACCOUNT_PROPERTY_ENUM.JOB_TITLE, jobTitle)
 				this.handleResponse({
-					displayName,
+					jobTitle,
 					status: responseData.ocs?.meta?.status,
 				})
 			} catch (e) {
 				this.handleResponse({
-					errorMessage: 'Unable to update full name',
+					errorMessage: 'Unable to update job title',
 					error: e,
 				})
 			}
 		},
 
-		handleResponse({ displayName, status, errorMessage, error }) {
+		handleResponse({ jobTitle, status, errorMessage, error }) {
 			if (status === 'ok') {
 				// Ensure that local state reflects server state
-				this.initialDisplayName = displayName
-				emit('settings:display-name:updated', displayName)
+				this.initialJobTitle = jobTitle
+				emit('settings:job-title:updated', jobTitle)
 				this.showCheckmarkIcon = true
 				setTimeout(() => { this.showCheckmarkIcon = false }, 2000)
 			} else {
@@ -125,7 +123,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.displayname {
+.jobtitle {
 	display: grid;
 	align-items: center;
 
@@ -143,7 +141,7 @@ export default {
 		cursor: text;
 	}
 
-	.displayname__actions-container {
+	.jobtitle__actions-container {
 		grid-area: 1 / 1;
 		justify-self: flex-end;
 		height: 30px;

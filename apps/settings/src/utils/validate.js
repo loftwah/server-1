@@ -29,12 +29,14 @@
 import { VALIDATE_EMAIL_REGEX } from '../constants/AccountPropertyConstants'
 
 /**
- * Validate the display name input
+ * Validate the string input
+ *
+ * *Generic validator just to check that input is not an empty string*
  *
  * @param {string} input the input
  * @returns {boolean}
  */
-export function validateDisplayName(input) {
+export function validateStringInput(input) {
 	return input !== ''
 }
 

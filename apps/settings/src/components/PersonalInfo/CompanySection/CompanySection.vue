@@ -23,54 +23,45 @@
 	<section>
 		<HeaderBar
 			:account-property="accountProperty"
-			label-for="displayname"
-			:is-editable="displayNameChangeSupported"
+			label-for="company"
 			:is-valid-section="isValidSection"
-			:scope.sync="primaryDisplayName.scope" />
+			:scope.sync="primaryCompany.scope" />
 
-		<template v-if="displayNameChangeSupported">
-			<DisplayName
-				:display-name.sync="primaryDisplayName.value"
-				:scope.sync="primaryDisplayName.scope" />
-		</template>
-
-		<span v-else>
-			{{ primaryDisplayName.value || t('settings', 'No full name set') }}
-		</span>
+		<Company
+			:company.sync="primaryCompany.value"
+			:scope.sync="primaryCompany.scope" />
 	</section>
 </template>
 
 <script>
 import { loadState } from '@nextcloud/initial-state'
 
-import DisplayName from './DisplayName'
+import Company from './Company'
 import HeaderBar from '../shared/HeaderBar'
 
 import { ACCOUNT_PROPERTY_READABLE_ENUM } from '../../../constants/AccountPropertyConstants'
 import { validateStringInput } from '../../../utils/validate'
 
-const { displayNameMap: { primaryDisplayName } } = loadState('settings', 'personalInfoParameters', {})
-const { displayNameChangeSupported } = loadState('settings', 'accountParameters', {})
+const { companyMap: { primaryCompany } } = loadState('settings', 'personalInfoParameters', {})
 
 export default {
-	name: 'DisplayNameSection',
+	name: 'CompanySection',
 
 	components: {
-		DisplayName,
+		Company,
 		HeaderBar,
 	},
 
 	data() {
 		return {
-			accountProperty: ACCOUNT_PROPERTY_READABLE_ENUM.DISPLAYNAME,
-			displayNameChangeSupported,
-			primaryDisplayName,
+			accountProperty: ACCOUNT_PROPERTY_READABLE_ENUM.COMPANY,
+			primaryCompany,
 		}
 	},
 
 	computed: {
 		isValidSection() {
-			return validateStringInput(this.primaryDisplayName.value)
+			return validateStringInput(this.primaryCompany.value)
 		},
 	},
 }

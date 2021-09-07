@@ -23,8 +23,6 @@
 	<div class="language">
 		<select
 			id="language"
-			ref="language"
-			name="language"
 			:placeholder="t('settings', 'Language')"
 			required
 			@change="onLanguageChange">
@@ -57,7 +55,8 @@
 <script>
 import { showError } from '@nextcloud/dialogs'
 
-import { saveLanguage } from '../../../service/PersonalInfo/LanguageService'
+import { ACCOUNT_SETTING_PROPERTY_ENUM } from '../../../constants/AccountPropertyConstants'
+import { savePrimaryAccountProperty } from '../../../service/PersonalInfo/PersonalInfoService'
 import { validateLanguage } from '../../../utils/validate'
 
 export default {
@@ -105,7 +104,7 @@ export default {
 
 		async updateLanguage(language) {
 			try {
-				const responseData = await saveLanguage(language.code)
+				const responseData = await savePrimaryAccountProperty(ACCOUNT_SETTING_PROPERTY_ENUM.LANGUAGE, language.code)
 				this.handleResponse({
 					language,
 					status: responseData.ocs?.meta?.status,

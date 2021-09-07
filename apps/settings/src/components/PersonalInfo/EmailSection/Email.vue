@@ -26,7 +26,6 @@
 				id="email"
 				ref="email"
 				type="email"
-				:name="inputName"
 				:placeholder="inputPlaceholder"
 				:value="email"
 				autocapitalize="none"
@@ -47,7 +46,7 @@
 						:additional="true"
 						:additional-value="email"
 						:disabled="federationDisabled"
-						:handle-scope-change="saveAdditionalEmailScope"
+						:handle-additional-scope-change="saveAdditionalEmailScope"
 						:scope.sync="localScope"
 						@update:scope="onScopeChange" />
 				</template>
@@ -183,13 +182,6 @@ export default {
 
 		federationDisabled() {
 			return !this.initialEmail
-		},
-
-		inputName() {
-			if (this.primary) {
-				return 'email'
-			}
-			return 'additionalEmail[]'
 		},
 
 		inputPlaceholder() {

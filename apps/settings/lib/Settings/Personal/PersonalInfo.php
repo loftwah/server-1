@@ -33,6 +33,7 @@ declare(strict_types=1);
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
 namespace OCA\Settings\Settings\Personal;
 
 use OCA\FederatedFileSharing\FederatedShareProvider;
@@ -56,18 +57,25 @@ class PersonalInfo implements ISettings {
 
 	/** @var IConfig */
 	private $config;
+
 	/** @var IUserManager */
 	private $userManager;
+
 	/** @var IAccountManager */
 	private $accountManager;
+
 	/** @var IGroupManager */
 	private $groupManager;
+
 	/** @var IAppManager */
 	private $appManager;
+
 	/** @var IFactory */
 	private $l10nFactory;
+
 	/** @var IL10N */
 	private $l;
+
 	/** @var IInitialState */
 	private $initialStateService;
 
@@ -114,7 +122,7 @@ class PersonalInfo implements ISettings {
 			$totalSpace = \OC_Helper::humanFileSize($storageInfo['total']);
 		}
 
-		$languageParameters = $this->getLanguages($user);
+		$languageParameters = $this->getLanguageMap($user);
 		$localeParameters = $this->getLocales($user);
 		$messageParameters = $this->getMessageParameters($account);
 
@@ -147,10 +155,12 @@ class PersonalInfo implements ISettings {
 
 		$personalInfoParameters = [
 			'userId' => $uid,
-			'displayNames' => $this->getDisplayNames($account),
-			'emails' => $this->getEmails($account),
-			'languages' => $this->getLanguages($user),
+			'displayNameMap' => $this->getDisplayNameMap($account),
+			'emailMap' => $this->getEmailMap($account),
+			'languageMap' => $this->getLanguageMap($user),
 			'profileEnabled' => $this->getProfileEnabled($account),
+			'companyMap' => $this->getCompanyMap($account),
+			'jobTitleMap' => $this->getJobTitleMap($account),
 		];
 
 		$accountParameters = [
@@ -162,6 +172,52 @@ class PersonalInfo implements ISettings {
 		$this->initialStateService->provideInitialState('accountParameters', $accountParameters);
 
 		return new TemplateResponse('settings', 'settings/personal/personal.info', $parameters, '');
+	}
+
+	/**
+	 * returns the primary company in an
+	 * associative array
+	 *
+	 * NOTE may be extended to provide additional companies in the future
+	 *
+	 * @param IAccount $account
+	 * @return array
+	 */
+	private function getCompanyMap(IAccount $account): array {
+		$primaryCompany = [
+			'value' => $account->getProperty(IAccountManager::PROPERTY_COMPANY)->getValue(),
+			'scope' => $account->getProperty(IAccountManager::PROPERTY_COMPANY)->getScope(),
+			'verified' => $account->getProperty(IAccountManager::PROPERTY_COMPANY)->getVerified(),
+		];
+
+		$companies = [
+			'primaryCompany' => $primaryCompany,
+		];
+
+		return $companies;
+	}
+
+	/**
+	 * returns the primary job title in an
+	 * associative array
+	 *
+	 * NOTE may be extended to provide additional job titles in the future
+	 *
+	 * @param IAccount $account
+	 * @return array
+	 */
+	private function getJobTitleMap(IAccount $account): array {
+		$primaryJobTitle = [
+			'value' => $account->getProperty(IAccountManager::PROPERTY_JOB_TITLE)->getValue(),
+			'scope' => $account->getProperty(IAccountManager::PROPERTY_JOB_TITLE)->getScope(),
+			'verified' => $account->getProperty(IAccountManager::PROPERTY_JOB_TITLE)->getVerified(),
+		];
+
+		$jobTitles = [
+			'primaryJobTitle' => $primaryJobTitle,
+		];
+
+		return $jobTitles;
 	}
 
 	/**
@@ -211,7 +267,7 @@ class PersonalInfo implements ISettings {
 	 * @param IAccount $account
 	 * @return array
 	 */
-	private function getDisplayNames(IAccount $account): array {
+	private function getDisplayNameMap(IAccount $account): array {
 		$primaryDisplayName = [
 			'value' => $account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
 			'scope' => $account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getScope(),
@@ -267,7 +323,7 @@ class PersonalInfo implements ISettings {
 	 * @param IUser $user
 	 * @return array
 	 */
-	private function getLanguages(IUser $user): array {
+	private function getLanguageMap(IUser $user): array {
 		$forceLanguage = $this->config->getSystemValue('force_language', false);
 		if ($forceLanguage !== false) {
 			return [];
@@ -372,9 +428,9 @@ class PersonalInfo implements ISettings {
 	 */
 	private function getProfileEnabled(IAccount $account): bool {
 		return filter_var(
-				$account->getProperty(IAccountManager::PROPERTY_PROFILE_ENABLED)->getValue(),
-				FILTER_VALIDATE_BOOLEAN,
-				FILTER_NULL_ON_FAILURE,
+			$account->getProperty(IAccountManager::PROPERTY_PROFILE_ENABLED)->getValue(),
+			FILTER_VALIDATE_BOOLEAN,
+			FILTER_NULL_ON_FAILURE,
 		);
 	}
 }

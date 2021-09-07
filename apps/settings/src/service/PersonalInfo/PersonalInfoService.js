@@ -25,23 +25,45 @@ import { getCurrentUser } from '@nextcloud/auth'
 import { generateOcsUrl } from '@nextcloud/router'
 import confirmPassword from '@nextcloud/password-confirmation'
 
-import { SETTING_PROPERTY_ENUM } from '../../constants/AccountPropertyConstants'
+import { SCOPE_SUFFIX } from '../../constants/AccountPropertyConstants'
 
 /**
- * Save the language of the user
+ * Save the primary account property value for the user
  *
- * @param {string} languageCode the language code
+ * @param {string} accountProperty the account property
+ * @param {string} value the primary value
  * @returns {object}
  */
-export const saveLanguage = async(languageCode) => {
+export const savePrimaryAccountProperty = async(accountProperty, value) => {
 	const userId = getCurrentUser().uid
 	const url = generateOcsUrl('cloud/users/{userId}', { userId })
 
 	await confirmPassword()
 
 	const res = await axios.put(url, {
-		key: SETTING_PROPERTY_ENUM.LANGUAGE,
-		value: languageCode,
+		key: accountProperty,
+		value,
+	})
+
+	return res.data
+}
+
+/**
+ * Save the federation scope of the primary account property for the user
+ *
+ * @param {string} accountProperty the account property
+ * @param {string} scope the federation scope
+ * @returns {object}
+ */
+export const savePrimaryAccountPropertyScope = async(accountProperty, scope) => {
+	const userId = getCurrentUser().uid
+	const url = generateOcsUrl('cloud/users/{userId}', { userId })
+
+	await confirmPassword()
+
+	const res = await axios.put(url, {
+		key: `${accountProperty}${SCOPE_SUFFIX}`,
+		value: scope,
 	})
 
 	return res.data

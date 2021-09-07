@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @copyright Copyright (c) 2021 Christopher Ng <chrng8@gmail.com>
  *
@@ -24,24 +25,33 @@
 
 declare(strict_types=1);
 
-
 namespace OC\Core\Controller;
 
+use \OCP\AppFramework\Controller;
 use EmailAction;
+use function Safe\substr;
+use OCA\Federation\TrustedServers;
+use OCP\Accounts\IAccount;
 use OCP\Accounts\IAccountManager;
+use OCP\Accounts\IAccountProperty;
+use OCP\App\IAppManager;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Services\IInitialState;
 use OCP\IL10N;
 use OCP\IRequest;
-use OCP\IUserSession;
-use OCP\UserStatus\IManager;
-use OCP\Accounts\IAccount;
-use OCP\Accounts\IAccountProperty;
-use OCP\App\IAppManager;
+use OCP\IURLGenerator;
 use OCP\IUserManager;
+use OCP\IUserSession;
 use OCP\Profile\IActionManager;
+use OCP\UserStatus\IManager as IUserStatusManager;
 
-class ProfileController extends \OCP\AppFramework\Controller {
+class ProfileController extends Controller {
+
+	/** @var IURLGenerator */
+	private $urlGenerator;
+
+	/** @var TrustedServers */
+	private $trustedServers;
 
 	/** @var IL10N */
 	private $l10n;
@@ -61,7 +71,7 @@ class ProfileController extends \OCP\AppFramework\Controller {
 	/** @var IAppManager */
 	private $appManager;
 
-	/** @var IManager */
+	/** @var IUserStatusManager */
 	private $userStatusManager;
 
 	/** @var IActionManager */
@@ -71,16 +81,20 @@ class ProfileController extends \OCP\AppFramework\Controller {
 		$appName,
 		IRequest $request,
 		IL10N $l10n,
+		IURLGenerator $urlGenerator,
+		TrustedServers $trustedServers,
 		IUserSession $userSession,
 		IUserManager $userManager,
 		IAccountManager $accountManager,
 		IInitialState $initialStateService,
 		IAppManager $appManager,
-		IManager $userStatusManager,
+		IUserStatusManager $userStatusManager
 		// IActionManager $actionManager
 	) {
 		parent::__construct($appName, $request);
 		$this->l10n = $l10n;
+		$this->urlGenerator = $urlGenerator;
+		$this->trustedServers = $trustedServers;
 		$this->userSession = $userSession;
 		$this->userManager = $userManager;
 		$this->accountManager = $accountManager;
@@ -90,7 +104,25 @@ class ProfileController extends \OCP\AppFramework\Controller {
 		// $this->actionManager = $actionManager;
 	}
 
-	public const PROPERTY_ACTIONS = [
+	public const PROFILE_DISPLAY_PROPERTIES = [
+		IAccountManager::PROPERTY_DISPLAYNAME,
+		IAccountManager::PROPERTY_ADDRESS,
+		IAccountManager::PROPERTY_COMPANY,
+		IAccountManager::PROPERTY_JOB_TITLE,
+		IAccountManager::PROPERTY_HEADLINE,
+		IAccountManager::PROPERTY_BIOGRAPHY,
+	];
+
+	public const PROFILE_DISPLAY_PROPERTY_JSON_MAP = [
+		IAccountManager::PROPERTY_DISPLAYNAME => 'displayName',
+		IAccountManager::PROPERTY_ADDRESS => 'address',
+		IAccountManager::PROPERTY_COMPANY => 'company',
+		IAccountManager::PROPERTY_JOB_TITLE => 'jobTitle',
+		IAccountManager::PROPERTY_HEADLINE => 'headline',
+		IAccountManager::PROPERTY_BIOGRAPHY => 'biography',
+	];
+
+	public const PROFILE_ACTION_PROPERTIES = [
 		IAccountManager::PROPERTY_EMAIL,
 		IAccountManager::PROPERTY_PHONE,
 		IAccountManager::PROPERTY_WEBSITE,
@@ -98,9 +130,15 @@ class ProfileController extends \OCP\AppFramework\Controller {
 	];
 
 	/**
-	 * @NoCSRFRequired
-	 * @UseSession
+	 * Useful annotations
+	 * @PublicPage
+	 * @NoAdminRequired
+	 */
+
+	/**
 	 * FIXME Public page annotation blocks the user session somehow
+	 * @UseSession
+	 * @NoCSRFRequired
 	 */
 	public function index(string $userId = null): TemplateResponse {
 		$isLoggedIn = $this->userSession->isLoggedIn();
@@ -151,31 +189,87 @@ class ProfileController extends \OCP\AppFramework\Controller {
 	 * TODO handle federation scope permissions
 	 */
 	private function getProfileParams(IAccount $account): array {
-		// for scope, if:
-		// 1) Published - visible to everybody
-		// 2) Federated - visible to users on trusted servers
-		// 3) Local - visible to users and guests on same server instance
-		// 4) Private - visible to users matched through phone number integration on Talk app
+		// TODO remove as profiles aren't visible by federated users, and display as if they were a guest
+		$isLoggedIn = $this->userSession->isLoggedIn();
+		$serverBaseUrl = $this->urlGenerator->getBaseUrl();
+		$reqProtocol = $this->request->getServerProtocol();
+		$reqHost = $this->request->getInsecureServerHost();
+		$reqUri = $this->request->getRequestUri();
+		$reqBaseUrl = substr("$reqProtocol://$reqHost$reqUri", 0, strlen($serverBaseUrl));
+		$isSameServerInstance = $serverBaseUrl === $reqBaseUrl;
 
 		$additionalEmails = array_map(
 			function (IAccountProperty $property) {
-				return [
-					'value' => $property->getValue(),
-					'scope' => $property->getScope(),
-				];
+				return $property->getValue();
 			},
 			$account->getPropertyCollection(IAccountManager::COLLECTION_EMAIL)->getProperties()
 		);
 
 		$profileParameters = [
 			'userId' => $account->getUser()->getUID(),
+		];
+
+		// for scope, if:
+		// 1) Private   - visible to users on same server instance
+		// 2) Local     - visible to users and public link visitors on same server instance
+		// 3) Federated - visible to users and public link visitors on same server instance and trusted servers
+		// 4) Published - same as Federated but also published to public lookup server
+		foreach (self::PROFILE_DISPLAY_PROPERTIES as $property) {
+			$scope = $account->getProperty($property)->getScope();
+			switch ($scope) {
+				case IAccountManager::SCOPE_PRIVATE:
+					$profileParameters[self::PROFILE_DISPLAY_PROPERTY_JSON_MAP[$property]] =
+						($isLoggedIn && $isSameServerInstance) ? $account->getProperty($property)->getValue() : null;
+					break;
+				case IAccountManager::SCOPE_LOCAL:
+					$profileParameters[self::PROFILE_DISPLAY_PROPERTY_JSON_MAP[$property]] =
+						$isSameServerInstance ? $account->getProperty($property)->getValue() : null;
+					break;
+				case IAccountManager::SCOPE_FEDERATED:
+					$profileParameters[self::PROFILE_DISPLAY_PROPERTY_JSON_MAP[$property]] =
+						$this->trustedServers->isTrustedServer($serverBaseUrl) ? $account->getProperty($property)->getValue() : null;
+					break;
+				case IAccountManager::SCOPE_PUBLISHED:
+					$profileParameters[self::PROFILE_DISPLAY_PROPERTY_JSON_MAP[$property]] =
+						$this->trustedServers->isTrustedServer($serverBaseUrl) ? $account->getProperty($property)->getValue() : null;
+					break;
+				default:
+					$profileParameters[self::PROFILE_DISPLAY_PROPERTY_JSON_MAP[$property]] = null;
+					break;
+			}
+		}
+
+		$avatarScope = $account->getProperty(IAccountManager::PROPERTY_AVATAR)->getScope();
+		switch ($avatarScope) {
+			case IAccountManager::SCOPE_PRIVATE:
+				$profileParameters['isAvatarDisplayed'] = ($isLoggedIn && $isSameServerInstance);
+				break;
+			case IAccountManager::SCOPE_LOCAL:
+				$profileParameters['isAvatarDisplayed'] = $isSameServerInstance;
+				break;
+			case IAccountManager::SCOPE_FEDERATED:
+				$profileParameters['isAvatarDisplayed'] = $this->trustedServers->isTrustedServer($serverBaseUrl);
+				break;
+			case IAccountManager::SCOPE_PUBLISHED:
+				$profileParameters['isAvatarDisplayed'] = $this->trustedServers->isTrustedServer($serverBaseUrl);
+				break;
+			default:
+				$profileParameters['isAvatarDisplayed'] = false;
+				break;
+		}
+
+
+		$profileParameters = [
+			'userId' => $account->getUser()->getUID(),
 			'displayName' => $account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
-			// 'additionalEmails' => $additionalEmails,
 			'address' => $account->getProperty(IAccountManager::PROPERTY_ADDRESS)->getValue(),
+			'company' => $account->getProperty(IAccountManager::PROPERTY_COMPANY)->getValue(),
+			'jobTitle' => $account->getProperty(IAccountManager::PROPERTY_JOB_TITLE)->getValue(),
 			// Ordered by precedence, order is preserved in PHP and modern JavaScript
 			'actionParameters' => [
 				'talkEnabled' => $this->appManager->isEnabledForUser('spreed', $account->getUser()),
 				'email' => $account->getProperty(IAccountManager::PROPERTY_EMAIL)->getValue(),
+				// 'additionalEmails' => $additionalEmails,
 				'phoneNumber' => $account->getProperty(IAccountManager::PROPERTY_PHONE)->getValue(),
 				'website' => $account->getProperty(IAccountManager::PROPERTY_WEBSITE)->getValue(),
 				'twitterUsername' => $account->getProperty(IAccountManager::PROPERTY_TWITTER)->getValue(),
@@ -186,7 +280,7 @@ class ProfileController extends \OCP\AppFramework\Controller {
 	}
 
 	protected function initActions(IAccount $account) {
-		foreach(self::PROPERTY_ACTIONS as $property) {
+		foreach (self::PROFILE_ACTION_PROPERTIES as $property) {
 			$scope = $account->getProperty($property)->getScope();
 			$value = $account->getProperty($property)->getValue();
 

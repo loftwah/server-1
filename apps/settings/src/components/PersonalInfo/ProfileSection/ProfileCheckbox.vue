@@ -20,7 +20,7 @@
 -->
 
 <template>
-	<div class="profile">
+	<div class="checkbox-container">
 		<input
 			id="enable-profile"
 			class="checkbox"
@@ -30,7 +30,6 @@
 		<label for="enable-profile">
 			{{ t('settings', 'Enable Profile') }}
 		</label>
-		<em>This will enable your user profile.</em>
 	</div>
 </template>
 
@@ -38,8 +37,9 @@
 import { showError } from '@nextcloud/dialogs'
 import { emit } from '@nextcloud/event-bus'
 
-import { saveEnableProfile } from '../../../service/PersonalInfo/ProfileService'
+import { savePrimaryAccountProperty } from '../../../service/PersonalInfo/PersonalInfoService'
 import { validateEnableProfile } from '../../../utils/validate'
+import { ACCOUNT_PROPERTY_ENUM } from '../../../constants/AccountPropertyConstants'
 
 export default {
 	name: 'ProfileCheckbox',
@@ -71,7 +71,7 @@ export default {
 
 		async updateEnableProfile(isEnabled) {
 			try {
-				const responseData = await saveEnableProfile(isEnabled)
+				const responseData = await savePrimaryAccountProperty(ACCOUNT_PROPERTY_ENUM.PROFILE_ENABLED, isEnabled)
 				this.handleResponse({
 					isEnabled,
 					status: responseData.ocs?.meta?.status,
@@ -88,7 +88,7 @@ export default {
 			if (status === 'ok') {
 				// Ensure that local state reflects server state
 				this.initialProfileEnabled = isEnabled
-				emit('settings:profileEnabled:updated', isEnabled)
+				emit('settings:profile-enabled:updated', isEnabled)
 				this.showCheckmarkIcon = true
 				setTimeout(() => { this.showCheckmarkIcon = false }, 2000)
 			} else {
@@ -103,7 +103,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.profile {
+.checkbox-container {
 	display: grid;
 
 	em {

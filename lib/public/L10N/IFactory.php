@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @copyright Copyright (c) 2016, ownCloud, Inc.
  *
@@ -26,6 +27,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  *
  */
+
 namespace OCP\L10N;
 
 use OCP\IUser;
@@ -125,6 +127,12 @@ interface IFactory {
 	 * @since 14.0.0
 	 */
 	public function getLanguageIterator(IUser $user = null): ILanguageIterator;
+
+	/**
+	 * returns common language and other languages in an
+	 * associative array
+	 */
+	public function getLanguages(): array;
 
 	/**
 	 * Return the language to use when sending something to a user

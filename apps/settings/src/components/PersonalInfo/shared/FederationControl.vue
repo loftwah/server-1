@@ -45,7 +45,8 @@ import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
 import { loadState } from '@nextcloud/initial-state'
 import { showError } from '@nextcloud/dialogs'
 
-import { ACCOUNT_PROPERTY_READABLE_ENUM, PROPERTY_READABLE_SUPPORTED_SCOPES_ENUM, SCOPE_ENUM, SCOPE_PROPERTY_ENUM } from '../../../constants/AccountPropertyConstants'
+import { ACCOUNT_PROPERTY_READABLE_ENUM, PROPERTY_READABLE_KEYS_ENUM, PROPERTY_READABLE_SUPPORTED_SCOPES_ENUM, SCOPE_ENUM, SCOPE_PROPERTY_ENUM } from '../../../constants/AccountPropertyConstants'
+import { savePrimaryAccountPropertyScope } from '../../../service/PersonalInfo/PersonalInfoService'
 
 const { lookupServerUploadEnabled } = loadState('settings', 'accountParameters', {})
 
@@ -75,9 +76,9 @@ export default {
 			type: Boolean,
 			default: false,
 		},
-		handleScopeChange: {
+		handleAdditionalScopeChange: {
 			type: Function,
-			required: true,
+			default: null,
 		},
 		scope: {
 			type: String,
@@ -131,7 +132,7 @@ export default {
 
 		async updatePrimaryScope(scope) {
 			try {
-				const responseData = await this.handleScopeChange(scope)
+				const responseData = await savePrimaryAccountPropertyScope(PROPERTY_READABLE_KEYS_ENUM[this.accountProperty], scope)
 				this.handleResponse({
 					scope,
 					status: responseData.ocs?.meta?.status,
@@ -146,7 +147,7 @@ export default {
 
 		async updateAdditionalScope(scope) {
 			try {
-				const responseData = await this.handleScopeChange(this.additionalValue, scope)
+				const responseData = await this.handleAdditionalScopeChange(this.additionalValue, scope)
 				this.handleResponse({
 					scope,
 					status: responseData.ocs?.meta?.status,

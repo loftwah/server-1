@@ -117,8 +117,8 @@ export default {
 	 * and stores it in Vuex
 	 */
 	mounted() {
-		subscribe('settings:displayName:updated', this.handleDisplayNameUpdate)
-		subscribe('settings:profileEnabled:updated', this.handleProfileEnabledUpdate)
+		subscribe('settings:display-name:updated', this.handleDisplayNameUpdate)
+		subscribe('settings:profile-enabled:updated', this.handleProfileEnabledUpdate)
 
 		this.$store.dispatch('loadStatusFromInitialState')
 
@@ -155,8 +155,8 @@ export default {
 	 * Some housekeeping before destroying the component
 	 */
 	beforeDestroy() {
-		unsubscribe('settings:displayName:updated', this.handleDisplayNameUpdate)
-		unsubscribe('settings:profileEnabled:updated', this.handleProfileEnabledUpdate)
+		unsubscribe('settings:display-name:updated', this.handleDisplayNameUpdate)
+		unsubscribe('settings:profile-enabled:updated', this.handleProfileEnabledUpdate)
 		window.removeEventListener('mouseMove', this.mouseMoveListener)
 		clearInterval(this.heartbeatInterval)
 	},

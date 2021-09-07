@@ -45,10 +45,10 @@ import { loadState } from '@nextcloud/initial-state'
 import Language from './Language'
 import HeaderBar from '../shared/HeaderBar'
 
-import { SETTING_PROPERTY_READABLE_ENUM } from '../../../constants/AccountPropertyConstants'
+import { ACCOUNT_SETTING_PROPERTY_READABLE_ENUM } from '../../../constants/AccountPropertyConstants'
 import { validateLanguage } from '../../../utils/validate'
 
-const { languages: { activeLanguage, commonLanguages, otherLanguages } } = loadState('settings', 'personalInfoParameters', {})
+const { languageMap: { activeLanguage, commonLanguages, otherLanguages } } = loadState('settings', 'personalInfoParameters', {})
 
 export default {
 	name: 'LanguageSection',
@@ -60,7 +60,7 @@ export default {
 
 	data() {
 		return {
-			accountProperty: SETTING_PROPERTY_READABLE_ENUM.LANGUAGE,
+			accountProperty: ACCOUNT_SETTING_PROPERTY_READABLE_ENUM.LANGUAGE,
 			commonLanguages,
 			otherLanguages,
 			language: activeLanguage,
