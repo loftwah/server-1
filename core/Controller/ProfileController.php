@@ -27,9 +27,13 @@ declare(strict_types=1);
 
 namespace OC\Core\Controller;
 
-use \OCP\AppFramework\Controller;
+use TalkAction;
 use EmailAction;
+use PhoneAction;
+use WesbsiteAction;
+use TwitterAction;
 use function Safe\substr;
+use \OCP\AppFramework\Controller;
 use OCA\Federation\TrustedServers;
 use OCP\Accounts\IAccount;
 use OCP\Accounts\IAccountManager;
@@ -44,6 +48,7 @@ use OCP\IUserManager;
 use OCP\IUserSession;
 use OCP\Profile\IActionManager;
 use OCP\UserStatus\IManager as IUserStatusManager;
+use Psr\Container\ContainerInterface;
 
 class ProfileController extends Controller {
 
@@ -55,6 +60,9 @@ class ProfileController extends Controller {
 
 	/** @var IL10N */
 	private $l10n;
+
+	/** @var ContainerInterface */
+	private $containerInterface;
 
 	/** @var IUserSession */
 	private $userSession;
@@ -75,12 +83,13 @@ class ProfileController extends Controller {
 	private $userStatusManager;
 
 	/** @var IActionManager */
-	// private $actionManager;
+	private $actionManager;
 
 	public function __construct(
 		$appName,
 		IRequest $request,
 		IL10N $l10n,
+		ContainerInterface $containerInterface,
 		IURLGenerator $urlGenerator,
 		TrustedServers $trustedServers,
 		IUserSession $userSession,
@@ -88,11 +97,12 @@ class ProfileController extends Controller {
 		IAccountManager $accountManager,
 		IInitialState $initialStateService,
 		IAppManager $appManager,
-		IUserStatusManager $userStatusManager
-		// IActionManager $actionManager
+		IUserStatusManager $userStatusManager,
+		IActionManager $actionManager
 	) {
 		parent::__construct($appName, $request);
 		$this->l10n = $l10n;
+		$this->containerInterface = $containerInterface;
 		$this->urlGenerator = $urlGenerator;
 		$this->trustedServers = $trustedServers;
 		$this->userSession = $userSession;
@@ -101,7 +111,7 @@ class ProfileController extends Controller {
 		$this->initialStateService = $initialStateService;
 		$this->appManager = $appManager;
 		$this->userStatusManager = $userStatusManager;
-		// $this->actionManager = $actionManager;
+		$this->actionManager = $actionManager;
 	}
 
 	public const PROFILE_DISPLAY_PROPERTIES = [
@@ -131,27 +141,17 @@ class ProfileController extends Controller {
 
 	/**
 	 * Useful annotations
-	 * @PublicPage
 	 * @NoAdminRequired
 	 */
 
 	/**
 	 * FIXME Public page annotation blocks the user session somehow
+	 * @PublicPage
 	 * @UseSession
 	 * @NoCSRFRequired
 	 */
-	public function index(string $userId = null): TemplateResponse {
-		$isLoggedIn = $this->userSession->isLoggedIn();
-		$account = $this->accountManager->getAccount($this->userManager->get($userId));
-
-		$profileEnabled = filter_var(
-			$account->getProperty(IAccountManager::PROPERTY_PROFILE_ENABLED)->getValue(),
-			FILTER_VALIDATE_BOOLEAN,
-			FILTER_NULL_ON_FAILURE,
-		);
-
-		// TODO empty profile page
-		if (!$profileEnabled) {
+	public function index(string $userId): TemplateResponse {
+		if (!$this->userManager->userExists($userId)) {
 			return new TemplateResponse(
 				'core',
 				'404-page',
@@ -160,9 +160,24 @@ class ProfileController extends Controller {
 			);
 		}
 
-		$status = $this->userStatusManager->getUserStatuses([$userId]);
-		$status = array_pop($status);
+		$user = $this->userManager->get($userId);
+		$account = $this->accountManager->getAccount($user);
+		$profileEnabled = filter_var(
+			$account->getProperty(IAccountManager::PROPERTY_PROFILE_ENABLED)->getValue(),
+			FILTER_VALIDATE_BOOLEAN,
+			FILTER_NULL_ON_FAILURE,
+		);
 
+		if (empty($profileEnabled)) {
+			return new TemplateResponse(
+				'core',
+				'404-page',
+				[],
+				TemplateResponse::RENDER_AS_GUEST,
+			);
+		}
+
+		$status = array_shift($this->userStatusManager->getUserStatuses([$userId]));
 		if ($status) {
 			$this->initialStateService->provideInitialState('status', [
 				'icon' => $status->getIcon(),
@@ -173,20 +188,17 @@ class ProfileController extends Controller {
 		$this->initialStateService->provideInitialState('profileParameters', $this->getProfileParams($account));
 
 		\OCP\Util::addScript('core', 'dist/profile');
-
 		return new TemplateResponse(
 			'core',
 			'profile',
 			[],
-			($isLoggedIn ? TemplateResponse::RENDER_AS_USER : TemplateResponse::RENDER_AS_PUBLIC)
+			$this->userSession->isLoggedIn() ? TemplateResponse::RENDER_AS_USER : TemplateResponse::RENDER_AS_PUBLIC
 		);
 	}
 
 	/**
 	 * returns the profile parameters in an
 	 * associative array
-	 *
-	 * TODO handle federation scope permissions
 	 */
 	private function getProfileParams(IAccount $account): array {
 		// TODO remove as profiles aren't visible by federated users, and display as if they were a guest
@@ -258,7 +270,7 @@ class ProfileController extends Controller {
 				break;
 		}
 
-
+		$actionParameters = $this->initActions($account);
 		$profileParameters = [
 			'userId' => $account->getUser()->getUID(),
 			'displayName' => $account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
@@ -266,47 +278,49 @@ class ProfileController extends Controller {
 			'company' => $account->getProperty(IAccountManager::PROPERTY_COMPANY)->getValue(),
 			'jobTitle' => $account->getProperty(IAccountManager::PROPERTY_JOB_TITLE)->getValue(),
 			// Ordered by precedence, order is preserved in PHP and modern JavaScript
-			'actionParameters' => [
-				'talkEnabled' => $this->appManager->isEnabledForUser('spreed', $account->getUser()),
-				'email' => $account->getProperty(IAccountManager::PROPERTY_EMAIL)->getValue(),
-				// 'additionalEmails' => $additionalEmails,
-				'phoneNumber' => $account->getProperty(IAccountManager::PROPERTY_PHONE)->getValue(),
-				'website' => $account->getProperty(IAccountManager::PROPERTY_WEBSITE)->getValue(),
-				'twitterUsername' => $account->getProperty(IAccountManager::PROPERTY_TWITTER)->getValue(),
-			],
+			'actionParameters' => $actionParameters,
 		];
 
 		return $profileParameters;
 	}
 
+	// TODO test out new implementation
 	protected function initActions(IAccount $account) {
+		$isLoggedIn = $this->userSession->isLoggedIn();
+		$userId = $account->getUser()->getUID();
+		$talkEnabled = $this->appManager->isEnabledForUser('spreed', $account->getUser());
+
+		if ($talkEnabled) {
+			$this->actionManager->registerAction($this->containerInterface->get(TalkAction::class), $userId);
+		}
+
 		foreach (self::PROFILE_ACTION_PROPERTIES as $property) {
 			$scope = $account->getProperty($property)->getScope();
 			$value = $account->getProperty($property)->getValue();
 
-			// TODO: handle talk verification
-			if ($scope === IAccountManager::SCOPE_PRIVATE) {
+			if ($scope === IAccountManager::SCOPE_PRIVATE && !$isLoggedIn) {
 				return;
 			}
-
-			// User is not logged in, we don't display the action
-			if ($scope === IAccountManager::SCOPE_LOCAL && !$this->userSession->isLoggedIn()) {
-				return;
-			}
-
-			// TODO: handle federation verification
-			if ($scope === IAccountManager::SCOPE_FEDERATED && false) {
-				return;
-			}
+			// The other less strict scopes all allow public link access
 
 			switch ($property) {
 				case IAccountManager::PROPERTY_EMAIL:
-					// $this->actionManager->registerAction(new EmailAction($value));
+					$this->actionManager->registerAction($this->containerInterface->get(EmailAction::class), $value);
 					break;
-
+				case IAccountManager::PROPERTY_PHONE:
+					$this->actionManager->registerAction($this->containerInterface->get(PhoneAction::class), $value);
+					break;
+				case IAccountManager::PROPERTY_WEBSITE:
+					$this->actionManager->registerAction($this->containerInterface->get(WebsiteAction::class), $value);
+					break;
+				case IAccountManager::PROPERTY_TWITTER:
+					$this->actionManager->registerAction($this->containerInterface->get(TwitterAction::class), $value);
+					break;
 				default:
 					break;
 			}
 		}
+
+		return $this->actionManager->getActions();
 	}
 }

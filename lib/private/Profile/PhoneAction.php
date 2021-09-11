@@ -26,7 +26,7 @@ use OCP\Profile\IProfileAction;
  *
  */
 
-class EmailAction implements IProfileAction {
+class PhoneAction implements IProfileAction {
 
 	/** @var IL10N */
 	private $l10n;
@@ -52,23 +52,23 @@ class EmailAction implements IProfileAction {
 	}
 
 	public function getName(): string {
-		return 'email';
+		return 'phone';
 	}
 
 	public function getTitle(): string {
-		return $this->l10n->t('Email %s', [$this->value]);
+		return $this->l10n->t('Call %s', [$this->value]);
 	}
 
 	public function getPriority(): int {
-		return 20;
+		return 30;
 	}
 
 	public function getIcon(): string {
-		return 'icon-mail';
+		return 'icon-phone';
 	}
 
 	public function getTarget(): string {
-		return 'mailto:' . $this->value;
+		return 'tel:' . $this->value;
 	}
 
 	public function setValue(string $value): string {

@@ -26,7 +26,7 @@ use OCP\Profile\IProfileAction;
  *
  */
 
-class EmailAction implements IProfileAction {
+class TalkAction implements IProfileAction {
 
 	/** @var IL10N */
 	private $l10n;
@@ -52,23 +52,23 @@ class EmailAction implements IProfileAction {
 	}
 
 	public function getName(): string {
-		return 'email';
+		return 'talk';
 	}
 
 	public function getTitle(): string {
-		return $this->l10n->t('Email %s', [$this->value]);
+		return $this->l10n->t('Talk to %s', [$this->value]);
 	}
 
 	public function getPriority(): int {
-		return 20;
+		return 10;
 	}
 
 	public function getIcon(): string {
-		return 'icon-mail';
+		return 'icon-talk';
 	}
 
 	public function getTarget(): string {
-		return 'mailto:' . $this->value;
+		return $this->urlGenerator->linkToRouteAbsolute('/apps/spreed?callUser={userId}', ['userId' => $this->value]);
 	}
 
 	public function setValue(string $value): string {

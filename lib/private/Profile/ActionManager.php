@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @copyright Copyright (c) 2021 John Molakvoæ <skjnldsv@protonmail.com>
  *
@@ -29,7 +30,8 @@ use OCP\Profile\IProfileAction;
  */
 class ActionManager implements IActionManager {
 
-	public function __construct() {}
+	public function __construct() {
+	}
 
 	/** @var array */
 	protected $actions = [];
@@ -37,7 +39,8 @@ class ActionManager implements IActionManager {
 	/**
 	 * @inheritDoc
 	 */
-	public function registerAction(IProfileAction $action) {
+	public function registerAction(IProfileAction $action, string $value) {
+		$action->setValue($value);
 		$this->actions[] = $action;
 	}
 
@@ -45,6 +48,10 @@ class ActionManager implements IActionManager {
 	 * @inheritDoc
 	 */
 	public function getActions(): array {
-		return $this->actions;
+		$actionsCopy = $this->actions;
+		usort($actionsCopy, function ($a, $b) {
+			return $a->getPriority() < $b->getPriority() ? -1 : 1;
+		});
+		return $actionsCopy;
 	}
 }

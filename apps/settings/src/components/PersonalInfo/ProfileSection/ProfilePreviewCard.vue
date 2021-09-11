@@ -114,7 +114,7 @@ export default {
 	box-shadow: 0 2px 9px var(--color-box-shadow);
 
 	&:hover {
-		box-shadow: 0 2px 9px rgba(77, 77, 77, 0.65);
+		box-shadow: 0 2px 10px rgba(77, 77, 77, 0.65);
 	}
 
 	&.disabled {
@@ -127,14 +127,11 @@ export default {
 		&::v-deep * {
 			cursor: default;
 		}
-
-		&:hover {
-			box-shadow: 0 2px 9px rgba(77, 77, 77, 0.2);
-		}
 	}
 
 	&__avatar {
-		position: absolute;
+		// Override Avatar component position to fix positioning on rerender
+		position: absolute !important;
 		top: 40px;
 		left: 18px;
 		z-index: 1;

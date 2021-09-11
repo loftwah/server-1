@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @copyright Copyright (c) 2021 John Molakvoæ <skjnldsv@protonmail.com>
  *
@@ -20,12 +21,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
 namespace OCP\Profile;
 
 /**
  * @since 23
  */
 interface IProfileAction {
+	/**
+	 * returns the unique name of the action,
+	 * e.g. 'email'
+	 *
+	 * @return string
+	 * @since 23
+	 */
+	public function getName(): string;
+
 	/**
 	 * returns the translated title as it should be displayed,
 	 * e.g. 'Email john@domain.com'. Use the L10N service to translate it.
@@ -54,10 +65,20 @@ interface IProfileAction {
 	public function getIcon(): string;
 
 	/**
-	 * returns the target of the action, e.g. 'mailto:john@domain.com'
+	 * returns the target of the action
+	 * e.g. 'mailto:john@domain.com'
 	 *
 	 * @returns string
 	 * @since 23
 	 */
 	public function getTarget(): string;
+
+	/**
+	 * set the action value
+	 * e.g. `random@example.org` for email and the userId for talk
+	 *
+	 * @return string
+	 * @since 23
+	 */
+	public function setValue(string $value): string;
 }

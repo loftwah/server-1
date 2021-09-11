@@ -26,7 +26,7 @@ use OCP\Profile\IProfileAction;
  *
  */
 
-class EmailAction implements IProfileAction {
+class TwitterAction implements IProfileAction {
 
 	/** @var IL10N */
 	private $l10n;
@@ -52,23 +52,24 @@ class EmailAction implements IProfileAction {
 	}
 
 	public function getName(): string {
-		return 'email';
+		return 'twitter';
 	}
 
 	public function getTitle(): string {
-		return $this->l10n->t('Email %s', [$this->value]);
+		$this->value = $this->value[0] === '@' ? $this->value : '@' . $this->value;
+		return $this->l10n->t('View %s on Twitter', [$this->value]);
 	}
 
 	public function getPriority(): int {
-		return 20;
+		return 50;
 	}
 
 	public function getIcon(): string {
-		return 'icon-mail';
+		return 'icon-twitter';
 	}
 
 	public function getTarget(): string {
-		return 'mailto:' . $this->value;
+		return 'https://twitter.com/' . $this->value;
 	}
 
 	public function setValue(string $value): string {

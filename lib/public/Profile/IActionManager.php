@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @copyright Copyright (c) 2021 John Molakvoæ <skjnldsv@protonmail.com>
  *
@@ -20,6 +21,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
 namespace OCP\Profile;
 
 /**
@@ -32,7 +34,7 @@ interface IActionManager {
 	 *
 	 * @since 23
 	 */
-	public function registerAction(IProfileAction $action);
+	public function registerAction(IProfileAction $action, string $value);
 
 	/**
 	 * Returns the list of all registered profile actions

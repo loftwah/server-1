@@ -26,7 +26,7 @@ use OCP\Profile\IProfileAction;
  *
  */
 
-class EmailAction implements IProfileAction {
+class WebsiteAction implements IProfileAction {
 
 	/** @var IL10N */
 	private $l10n;
@@ -52,23 +52,23 @@ class EmailAction implements IProfileAction {
 	}
 
 	public function getName(): string {
-		return 'email';
+		return 'website';
 	}
 
 	public function getTitle(): string {
-		return $this->l10n->t('Email %s', [$this->value]);
+		return $this->l10n->t('Go to %s', [$this->value]);
 	}
 
 	public function getPriority(): int {
-		return 20;
+		return 40;
 	}
 
 	public function getIcon(): string {
-		return 'icon-mail';
+		return 'icon-timezone';
 	}
 
 	public function getTarget(): string {
-		return 'mailto:' . $this->value;
+		return $this->value;
 	}
 
 	public function setValue(string $value): string {

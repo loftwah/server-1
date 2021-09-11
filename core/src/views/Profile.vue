@@ -45,6 +45,7 @@
 		<div class="profile__content">
 			<div class="profile__sidebar">
 				<Avatar
+					class="avatar"
 					:user="userId"
 					:size="180"
 					:show-user-status="true"
@@ -54,30 +55,26 @@
 					@click.native.prevent.stop="openStatusModal" />
 
 				<div class="user-actions">
-					<Actions v-if="primaryAction"
-						:key="primaryAction.icon"
+					<PrimaryActionButton v-if="primaryAction"
 						class="user-actions__primary"
-						:primary="true"
-						:default-icon="primaryAction.icon"
-						:menu-title="primaryAction.label"
-						:force-menu="false">
-						<ActionLink
-							:close-after-click="true"
-							:icon="primaryAction.icon"
-							:href="primaryAction.href"
-							:title="primaryAction.label">
-							{{ primaryAction.label }}
-						</ActionLink>
-					</Actions>
+						:href="primaryAction.href"
+						:icon="primaryAction.icon"
+						:disabled="actionsDisabled">
+						{{ primaryAction.label }}
+					</PrimaryActionButton>
 					<div class="user-actions__other">
 						<Actions v-for="action in allActions.slice(1, 4)"
 							:key="action.icon"
+							:class="{ 'disabled': actionsDisabled }"
 							:default-icon="action.icon"
-							:menu-title="action.label">
+							:menu-title="action.label"
+							:disabled="actionsDisabled">
 							<ActionLink
+								:class="{ 'disabled': actionsDisabled }"
 								:close-after-click="true"
 								:icon="action.icon"
 								:href="action.href"
+								:target="action.name === 'phone' ? '_self' :'_blank'"
 								:title="action.label">
 								{{ action.label }}
 							</ActionLink>
@@ -85,10 +82,13 @@
 						<template v-if="otherActions">
 							<Actions v-for="action in otherActions"
 								:key="action.icon"
+								:class="{ 'disabled': actionsDisabled }"
 								:force-menu="true">
 								<ActionLink
+									:class="{ 'disabled': actionsDisabled }"
 									:close-after-click="true"
 									:href="action.href"
+									:target="action.name === 'phone' ? '_self' :'_blank'"
 									:icon="action.icon">
 									{{ action.label }}
 								</ActionLink>
@@ -153,6 +153,8 @@ import MapMarkerIcon from 'vue-material-design-icons/MapMarker'
 import AccountIcon from 'vue-material-design-icons/Account'
 import { showError } from '@nextcloud/dialogs'
 
+import PrimaryActionButton from '../components/Profile/PrimaryActionButton'
+
 const { userId, company, jobTitle, displayName, address, actionParameters } = loadState('core', 'profileParameters', {})
 const status = loadState('core', 'status', {})
 
@@ -166,6 +168,7 @@ export default {
 		AccountIcon,
 		// PhoneIcon,
 		MapMarkerIcon,
+		PrimaryActionButton,
 	},
 
 	data() {
@@ -186,6 +189,10 @@ export default {
 			return getCurrentUser()?.uid === this.userId
 		},
 
+		actionsDisabled() {
+			return this.isCurrentUser
+		},
+
 		primaryAction() {
 			if (this.allActions.length) {
 				return this.allActions[0]
@@ -196,28 +203,33 @@ export default {
 		allActions() {
 			const actionMap = {
 				talkEnabled: {
+					name: 'talk',
 					icon: 'icon-talk',
-					label: `Talk to ${this.displayName}`,
+					label: `${t('core', 'Talk to')} ${this.displayName}`,
 					href: generateUrl('apps/spreed?callUser={userId}', { userId }),
 				},
 				email: {
+					name: 'email',
 					icon: 'icon-mail',
-					label: `Email ${actionParameters.email}`,
+					label: `${t('core', 'Email')} ${actionParameters.email}`,
 					href: `mailto:${actionParameters.email}`,
 				},
 				phoneNumber: {
+					name: 'phone',
 					icon: 'icon-phone',
-					label: `Call phone number (${actionParameters.phoneNumber})`,
+					label: `${t('core', 'Call phone number')} (${actionParameters.phoneNumber})`,
 					href: `tel:${actionParameters.phoneNumber}`,
 				},
 				website: {
+					name: 'website',
 					icon: 'icon-timezone',
-					label: `Visit website (${actionParameters.website})`,
+					label: `${t('core', 'Visit website')} (${actionParameters.website})`,
 					href: actionParameters.website,
 				},
 				twitterUsername: {
+					name: 'twitter',
 					icon: 'icon-twitter',
-					label: `View Twitter profile ${actionParameters.twitterUsername[0] === '@' ? actionParameters.twitterUsername : `@${actionParameters.twitterUsername}`}`,
+					label: `${t('core', 'View Twitter profile')} ${actionParameters.twitterUsername[0] === '@' ? actionParameters.twitterUsername : `@${actionParameters.twitterUsername}`}`,
 					href: `https://twitter.com/${actionParameters.twitterUsername}`,
 				},
 			}
@@ -274,6 +286,12 @@ export default {
 #content {
 	padding-top: 0px;
 }
+
+// Add twitter icon
+.icon-twitter {
+	background-image: url("data:image/svg+xml,%3Csvg width='32' height='32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M21.61 4.62h.16c1.77 0 3.37.75 4.5 1.94 1.4-.27 2.71-.79 3.9-1.5a6.17 6.17 0 01-2.7 3.41C28.7 8.32 29.9 8 31 7.5a12.47 12.47 0 01-3.07 3.19l.02.8c0 8.13-6.2 17.51-17.52 17.51-3.47 0-6.7-1.02-9.43-2.77a12.46 12.46 0 009.11-2.54 6.16 6.16 0 01-5.75-4.28 6.1 6.1 0 002.78-.1 6.16 6.16 0 01-4.93-6.04v-.08c.83.46 1.78.74 2.78.77a6.15 6.15 0 01-1.9-8.22 17.48 17.48 0 0012.69 6.44 6.16 6.16 0 015.83-7.56z'/%3E%3C/svg%3E");
+	background-size: 16px;
+}
 </style>
 
 <style lang="scss" scoped>
@@ -295,7 +313,7 @@ $content-max-width: 640px;
 			margin: 0 auto;
 			display: grid;
 			grid-template-rows: max-content max-content;
-			grid-template-columns: 230px 1fr;
+			grid-template-columns: 240px 1fr;
 			justify-content: center;
 
 			&__placeholder {
@@ -324,8 +342,8 @@ $content-max-width: 640px;
 			&__button {
 				border: none;
 				box-shadow: 0 0 0 1px var(--color-primary-text);
-				margin-left: 10px;
-				margin-top: 10px;
+				margin-left: 12px;
+				margin-top: 8px;
 			}
 
 			&__status {
@@ -352,22 +370,22 @@ $content-max-width: 640px;
 		align-self: flex-start;
 		padding-top: 20px;
 		min-width: 220px;
-		margin: -150px 10px 0 0;
+		margin: -150px 20px 0 0;
 
-		&::v-deep .avatardiv, h2 {
+		// Specificity hack is needed to override Avatar component styles
+		&::v-deep .avatar.avatardiv, h2 {
 			text-align: center;
 			margin: auto;
 			display: block;
 			padding: 8px;
 		}
 
-		// TODO remove specificity hack
-		&::v-deep .avatardiv:not(.avatardiv--unknown) {
+		&::v-deep .avatar.avatardiv:not(.avatardiv--unknown) {
 			background-color: var(--color-main-background) !important;
 			box-shadow: none;
 		}
 
-		&::v-deep .avatardiv {
+		&::v-deep .avatar.avatardiv {
 			.avatardiv__user-status {
 				right: 14px;
 				bottom: 14px;
@@ -408,7 +426,7 @@ $content-max-width: 640px;
 
 			.detail {
 				display: inline-block;
-				color: #555;
+				color: var(--color-text-maxcontrast);
 
 				& span {
 					display: inline-block;
@@ -465,6 +483,8 @@ $content-max-width: 640px;
 .user-actions {
 	display: flex;
 	flex-direction: column;
+	gap: 5px 0;
+	margin-top: 10px;
 
 	&__other {
 		display: flex;
@@ -473,30 +493,12 @@ $content-max-width: 640px;
 	}
 }
 
-.icon-twitter {
-	background-image: url("data:image/svg+xml,%3Csvg width='32' height='32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M21.61 4.62h.16c1.77 0 3.37.75 4.5 1.94 1.4-.27 2.71-.79 3.9-1.5a6.17 6.17 0 01-2.7 3.41C28.7 8.32 29.9 8 31 7.5a12.47 12.47 0 01-3.07 3.19l.02.8c0 8.13-6.2 17.51-17.52 17.51-3.47 0-6.7-1.02-9.43-2.77a12.46 12.46 0 009.11-2.54 6.16 6.16 0 01-5.75-4.28 6.1 6.1 0 002.78-.1 6.16 6.16 0 01-4.93-6.04v-.08c.83.46 1.78.74 2.78.77a6.15 6.15 0 01-1.9-8.22 17.48 17.48 0 0012.69 6.44 6.16 6.16 0 015.83-7.56z'/%3E%3C/svg%3E");
-	background-size: 16px;
-}
+.disabled {
+	// opacity: 0.5 !important;
+	// cursor: default !important;
 
-.content-block {
-	.header {
-		font-weight: bold;
-		color: var(--color-primary-element-light);
-	}
-}
-
-.photo-grid {
-	width: 100%;
-	display: grid;
-	grid-template-columns: 200px 200px 200px;
-	grid-template-rows: 200px 200px;
-	gap: 5px;
-
-	div {
-		width: 200px;
-		height: 200px;
-		background-color: hsl(201, 67%, 94%);
-		border-radius: 8px;
+	&::v-deep * {
+		// cursor: default !important;
 	}
 }
 </style>
