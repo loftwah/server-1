@@ -17,6 +17,7 @@
 	-
 	- You should have received a copy of the GNU Affero General Public License
 	- along with this program. If not, see <http://www.gnu.org/licenses/>.
+	-
 -->
 
 <template>
@@ -29,7 +30,6 @@
 			autocapitalize="none"
 			autocomplete="on"
 			autocorrect="off"
-			required
 			@input="onDisplayNameChange">
 
 		<div class="displayname__actions-container">
@@ -96,7 +96,7 @@ export default {
 				})
 			} catch (e) {
 				this.handleResponse({
-					errorMessage: 'Unable to update full name',
+					errorMessage: t('settings', 'Unable to update full name'),
 					error: e,
 				})
 			}
@@ -110,7 +110,7 @@ export default {
 				this.showCheckmarkIcon = true
 				setTimeout(() => { this.showCheckmarkIcon = false }, 2000)
 			} else {
-				showError(t('settings', errorMessage))
+				showError(errorMessage)
 				this.logger.error(errorMessage, error)
 				this.showErrorIcon = true
 				setTimeout(() => { this.showErrorIcon = false }, 2000)

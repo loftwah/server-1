@@ -161,6 +161,8 @@ class PersonalInfo implements ISettings {
 			'profileEnabled' => $this->getProfileEnabled($account),
 			'companyMap' => $this->getCompanyMap($account),
 			'jobTitleMap' => $this->getJobTitleMap($account),
+			'headlineMap' => $this->getHeadlineMap($account),
+			'biographyMap' => $this->getBiographyMap($account),
 		];
 
 		$accountParameters = [
@@ -175,13 +177,26 @@ class PersonalInfo implements ISettings {
 	}
 
 	/**
+	 * returns the primary biography in an
+	 * associative array
+	 */
+	private function getBiographyMap(IAccount $account): array {
+		$primaryBiography = [
+			'value' => $account->getProperty(IAccountManager::PROPERTY_BIOGRAPHY)->getValue(),
+			'scope' => $account->getProperty(IAccountManager::PROPERTY_BIOGRAPHY)->getScope(),
+			'verified' => $account->getProperty(IAccountManager::PROPERTY_BIOGRAPHY)->getVerified(),
+		];
+
+		$biographyMap = [
+			'primaryBiography' => $primaryBiography,
+		];
+
+		return $biographyMap;
+	}
+
+	/**
 	 * returns the primary company in an
 	 * associative array
-	 *
-	 * NOTE may be extended to provide additional companies in the future
-	 *
-	 * @param IAccount $account
-	 * @return array
 	 */
 	private function getCompanyMap(IAccount $account): array {
 		$primaryCompany = [
@@ -190,21 +205,34 @@ class PersonalInfo implements ISettings {
 			'verified' => $account->getProperty(IAccountManager::PROPERTY_COMPANY)->getVerified(),
 		];
 
-		$companies = [
+		$companyMap = [
 			'primaryCompany' => $primaryCompany,
 		];
 
-		return $companies;
+		return $companyMap;
+	}
+
+	/**
+	 * returns the primary headline in an
+	 * associative array
+	 */
+	private function getHeadlineMap(IAccount $account): array {
+		$primaryHeadline = [
+			'value' => $account->getProperty(IAccountManager::PROPERTY_HEADLINE)->getValue(),
+			'scope' => $account->getProperty(IAccountManager::PROPERTY_HEADLINE)->getScope(),
+			'verified' => $account->getProperty(IAccountManager::PROPERTY_HEADLINE)->getVerified(),
+		];
+
+		$headlineMap = [
+			'primaryHeadline' => $primaryHeadline,
+		];
+
+		return $headlineMap;
 	}
 
 	/**
 	 * returns the primary job title in an
 	 * associative array
-	 *
-	 * NOTE may be extended to provide additional job titles in the future
-	 *
-	 * @param IAccount $account
-	 * @return array
 	 */
 	private function getJobTitleMap(IAccount $account): array {
 		$primaryJobTitle = [
@@ -213,15 +241,15 @@ class PersonalInfo implements ISettings {
 			'verified' => $account->getProperty(IAccountManager::PROPERTY_JOB_TITLE)->getVerified(),
 		];
 
-		$jobTitles = [
+		$jobTitleMap = [
 			'primaryJobTitle' => $primaryJobTitle,
 		];
 
-		return $jobTitles;
+		return $jobTitleMap;
 	}
 
 	/**
-	 * @return string the section ID, e.g. 'sharing'
+	 * returns the section ID string, e.g. 'sharing'
 	 * @since 9.1
 	 */
 	public function getSection(): string {
@@ -242,9 +270,6 @@ class PersonalInfo implements ISettings {
 
 	/**
 	 * returns a sorted list of the user's group GIDs
-	 *
-	 * @param IUser $user
-	 * @return array
 	 */
 	private function getGroups(IUser $user): array {
 		$groups = array_map(
@@ -263,9 +288,6 @@ class PersonalInfo implements ISettings {
 	 * associative array
 	 *
 	 * NOTE may be extended to provide additional display names (i.e. aliases) in the future
-	 *
-	 * @param IAccount $account
-	 * @return array
 	 */
 	private function getDisplayNameMap(IAccount $account): array {
 		$primaryDisplayName = [
@@ -274,19 +296,16 @@ class PersonalInfo implements ISettings {
 			'verified' => $account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getVerified(),
 		];
 
-		$displayNames = [
+		$displayNameMap = [
 			'primaryDisplayName' => $primaryDisplayName,
 		];
 
-		return $displayNames;
+		return $displayNameMap;
 	}
 
 	/**
 	 * returns the primary email and additional emails in an
 	 * associative array
-	 *
-	 * @param IAccount $account
-	 * @return array
 	 */
 	private function getEmails(IAccount $account): array {
 		$systemEmail = [
@@ -307,21 +326,18 @@ class PersonalInfo implements ISettings {
 			$account->getPropertyCollection(IAccountManager::COLLECTION_EMAIL)->getProperties(),
 		);
 
-		$emails = [
+		$emailMap = [
 			'primaryEmail' => $systemEmail,
 			'additionalEmails' => $additionalEmails,
 			'notificationEmail' => (string)$account->getUser()->getPrimaryEMailAddress(),
 		];
 
-		return $emails;
+		return $emailMap;
 	}
 
 	/**
 	 * returns the user's active language, common languages, and other languages in an
 	 * associative array
-	 *
-	 * @param IUser $user
-	 * @return array
 	 */
 	private function getLanguageMap(IUser $user): array {
 		$forceLanguage = $this->config->getSystemValue('force_language', false);
@@ -398,8 +414,7 @@ class PersonalInfo implements ISettings {
 	}
 
 	/**
-	 * @param IAccount $account
-	 * @return array
+	 * returns the message parameters
 	 */
 	private function getMessageParameters(IAccount $account): array {
 		$needVerifyMessage = [IAccountManager::PROPERTY_EMAIL, IAccountManager::PROPERTY_WEBSITE, IAccountManager::PROPERTY_TWITTER];
@@ -422,9 +437,6 @@ class PersonalInfo implements ISettings {
 
 	/**
 	 * returns the profile enabled state
-	 *
-	 * @param IAccount $account
-	 * @return bool
 	 */
 	private function getProfileEnabled(IAccount $account): bool {
 		return filter_var(

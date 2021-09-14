@@ -17,6 +17,7 @@
 	-
 	- You should have received a copy of the GNU Affero General Public License
 	- along with this program. If not, see <http://www.gnu.org/licenses/>.
+	-
 -->
 
 <template>
@@ -78,7 +79,7 @@ export default {
 				})
 			} catch (e) {
 				this.handleResponse({
-					errorMessage: 'Unable to update profile enabled state',
+					errorMessage: t('settings', 'Unable to update profile enabled state'),
 					error: e,
 				})
 			}
@@ -92,7 +93,7 @@ export default {
 				this.showCheckmarkIcon = true
 				setTimeout(() => { this.showCheckmarkIcon = false }, 2000)
 			} else {
-				showError(t('settings', errorMessage))
+				showError(errorMessage)
 				this.logger.error(errorMessage, error)
 				this.showErrorIcon = true
 				setTimeout(() => { this.showErrorIcon = false }, 2000)

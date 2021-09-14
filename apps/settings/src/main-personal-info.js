@@ -33,6 +33,8 @@ import LanguageSection from './components/PersonalInfo/LanguageSection/LanguageS
 import ProfileSection from './components/PersonalInfo/ProfileSection/ProfileSection'
 import CompanySection from './components/PersonalInfo/CompanySection/CompanySection'
 import JobTitleSection from './components/PersonalInfo/JobTitleSection/JobTitleSection'
+import HeadlineSection from './components/PersonalInfo/HeadlineSection/HeadlineSection'
+import BiographySection from './components/PersonalInfo/BiographySection/BiographySection'
 
 __webpack_nonce__ = btoa(getRequestToken())
 
@@ -51,6 +53,8 @@ const LanguageView = Vue.extend(LanguageSection)
 const ProfileView = Vue.extend(ProfileSection)
 const CompanyView = Vue.extend(CompanySection)
 const JobTitleView = Vue.extend(JobTitleSection)
+const HeadlineView = Vue.extend(HeadlineSection)
+const BiographyView = Vue.extend(BiographySection)
 
 new DisplayNameView().$mount('#vue-displayname-section')
 new EmailView().$mount('#vue-email-section')
@@ -58,3 +62,5 @@ new LanguageView().$mount('#vue-language-section')
 new ProfileView().$mount('#vue-profile-section')
 new CompanyView().$mount('#vue-company-section')
 new JobTitleView().$mount('#vue-jobtitle-section')
+new HeadlineView().$mount('#vue-headline-section')
+new BiographyView().$mount('#vue-biography-section')

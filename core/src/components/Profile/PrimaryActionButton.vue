@@ -84,13 +84,8 @@ export default {
 			}
 		}
 
-		&:not(.disabled):hover {
+		&:hover {
 			background-color: var(--color-primary-element-light);
-		}
-
-		&.disabled {
-			// opacity: 0.5;
-			// cursor: default;
 		}
 	}
 </style>

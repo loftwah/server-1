@@ -21,18 +21,18 @@
 -->
 
 <template>
-	<div class="company">
+	<div class="headline">
 		<input
-			id="company"
+			id="headline"
 			type="text"
-			:placeholder="t('settings', 'Your company')"
-			:value="company"
+			:placeholder="t('settings', 'Your headline')"
+			:value="headline"
 			autocapitalize="none"
 			autocomplete="on"
 			autocorrect="off"
-			@input="onCompanyChange">
+			@input="onHeadlineChange">
 
-		<div class="company__actions-container">
+		<div class="headline__actions-container">
 			<transition name="fade">
 				<span v-if="showCheckmarkIcon" class="icon-checkmark" />
 				<span v-else-if="showErrorIcon" class="icon-error" />
@@ -50,10 +50,10 @@ import { ACCOUNT_PROPERTY_ENUM } from '../../../constants/AccountPropertyConstan
 import { savePrimaryAccountProperty } from '../../../service/PersonalInfo/PersonalInfoService'
 
 export default {
-	name: 'Company',
+	name: 'Headline',
 
 	props: {
-		company: {
+		headline: {
 			type: String,
 			required: true,
 		},
@@ -65,7 +65,7 @@ export default {
 
 	data() {
 		return {
-			initialCompany: this.company,
+			initialHeadline: this.headline,
 			localScope: this.scope,
 			showCheckmarkIcon: false,
 			showErrorIcon: false,
@@ -73,35 +73,35 @@ export default {
 	},
 
 	methods: {
-		onCompanyChange(e) {
-			this.$emit('update:company', e.target.value)
-			this.debounceCompanyChange(e.target.value.trim())
+		onHeadlineChange(e) {
+			this.$emit('update:headline', e.target.value)
+			this.debounceHeadlineChange(e.target.value.trim())
 		},
 
-		debounceCompanyChange: debounce(async function(company) {
-			await this.updatePrimaryCompany(company)
+		debounceHeadlineChange: debounce(async function(headline) {
+			await this.updatePrimaryHeadline(headline)
 		}, 500),
 
-		async updatePrimaryCompany(company) {
+		async updatePrimaryHeadline(headline) {
 			try {
-				const responseData = await savePrimaryAccountProperty(ACCOUNT_PROPERTY_ENUM.COMPANY, company)
+				const responseData = await savePrimaryAccountProperty(ACCOUNT_PROPERTY_ENUM.HEADLINE, headline)
 				this.handleResponse({
-					company,
+					headline,
 					status: responseData.ocs?.meta?.status,
 				})
 			} catch (e) {
 				this.handleResponse({
-					errorMessage: t('settings', 'Unable to update company'),
+					errorMessage: t('settings', 'Unable to update headline'),
 					error: e,
 				})
 			}
 		},
 
-		handleResponse({ company, status, errorMessage, error }) {
+		handleResponse({ headline, status, errorMessage, error }) {
 			if (status === 'ok') {
 				// Ensure that local state reflects server state
-				this.initialCompany = company
-				emit('settings:company:updated', company)
+				this.initialHeadline = headline
+				emit('settings:headline:updated', headline)
 				this.showCheckmarkIcon = true
 				setTimeout(() => { this.showCheckmarkIcon = false }, 2000)
 			} else {
@@ -120,7 +120,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.company {
+.headline {
 	display: grid;
 	align-items: center;
 
@@ -138,7 +138,7 @@ export default {
 		cursor: text;
 	}
 
-	.company__actions-container {
+	.headline__actions-container {
 		grid-area: 1 / 1;
 		justify-self: flex-end;
 		height: 30px;

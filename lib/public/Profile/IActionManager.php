@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @copyright Copyright (c) 2021 John Molakvoæ <skjnldsv@protonmail.com>
  *
@@ -34,7 +36,7 @@ interface IActionManager {
 	 *
 	 * @since 23
 	 */
-	public function registerAction(IProfileAction $action, string $value);
+	public function registerAction(string $action, string $value): void;
 
 	/**
 	 * Returns the list of all registered profile actions

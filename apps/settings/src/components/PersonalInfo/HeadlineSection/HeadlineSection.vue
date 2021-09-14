@@ -21,53 +21,51 @@
 -->
 
 <template>
-	<button
-		:disabled="disabled"
-		v-on="$listeners">
-		<span class="icon icon-add" />
-		{{ t('settings', 'Add') }}
-	</button>
+	<section>
+		<HeaderBar
+			:account-property="accountProperty"
+			label-for="headline"
+			:scope.sync="primaryHeadline.scope" />
+
+		<Headline
+			:headline.sync="primaryHeadline.value"
+			:scope.sync="primaryHeadline.scope" />
+	</section>
 </template>
 
 <script>
-export default {
-	name: 'AddButton',
+import { loadState } from '@nextcloud/initial-state'
 
-	props: {
-		disabled: {
-			type: Boolean,
-			default: true,
-		},
+import Headline from './Headline'
+import HeaderBar from '../shared/HeaderBar'
+
+import { ACCOUNT_PROPERTY_READABLE_ENUM } from '../../../constants/AccountPropertyConstants'
+
+const { headlineMap: { primaryHeadline } } = loadState('settings', 'personalInfoParameters', {})
+
+export default {
+	name: 'HeadlineSection',
+
+	components: {
+		Headline,
+		HeaderBar,
+	},
+
+	data() {
+		return {
+			accountProperty: ACCOUNT_PROPERTY_READABLE_ENUM.HEADLINE,
+			primaryHeadline,
+		}
 	},
 }
 </script>
 
 <style lang="scss" scoped>
-	button {
-		height: 44px;
-		padding: 0 16px;
-		border: none;
-		background-color: transparent;
+section {
+	padding: 10px 10px;
 
-		.icon {
-			margin-right: 8px;
-		}
-
-		&:enabled {
-			opacity: 0.4 !important;
-
-			.icon {
-				opacity: 0.8 !important;
-			}
-		}
-
-		&:hover {
-			background-color: rgba(127, 127, 127, .15);
-		}
-
-		&:enabled:hover {
-			background-color: rgba(127, 127, 127, .25);
-			opacity: 0.8 !important;
-		}
+	&::v-deep button:disabled {
+		cursor: default;
 	}
+}
 </style>

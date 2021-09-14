@@ -21,18 +21,18 @@
 -->
 
 <template>
-	<div class="company">
-		<input
-			id="company"
-			type="text"
-			:placeholder="t('settings', 'Your company')"
-			:value="company"
+	<div class="biography">
+		<textarea
+			id="biography"
+			:placeholder="t('settings', 'Your biography')"
+			:value="biography"
+			rows="8"
 			autocapitalize="none"
-			autocomplete="on"
+			autocomplete="off"
 			autocorrect="off"
-			@input="onCompanyChange">
+			@input="onBiographyChange" />
 
-		<div class="company__actions-container">
+		<div class="biography__actions-container">
 			<transition name="fade">
 				<span v-if="showCheckmarkIcon" class="icon-checkmark" />
 				<span v-else-if="showErrorIcon" class="icon-error" />
@@ -50,10 +50,10 @@ import { ACCOUNT_PROPERTY_ENUM } from '../../../constants/AccountPropertyConstan
 import { savePrimaryAccountProperty } from '../../../service/PersonalInfo/PersonalInfoService'
 
 export default {
-	name: 'Company',
+	name: 'Biography',
 
 	props: {
-		company: {
+		biography: {
 			type: String,
 			required: true,
 		},
@@ -65,7 +65,7 @@ export default {
 
 	data() {
 		return {
-			initialCompany: this.company,
+			initialBiography: this.biography,
 			localScope: this.scope,
 			showCheckmarkIcon: false,
 			showErrorIcon: false,
@@ -73,35 +73,35 @@ export default {
 	},
 
 	methods: {
-		onCompanyChange(e) {
-			this.$emit('update:company', e.target.value)
-			this.debounceCompanyChange(e.target.value.trim())
+		onBiographyChange(e) {
+			this.$emit('update:biography', e.target.value)
+			this.debounceBiographyChange(e.target.value.trim())
 		},
 
-		debounceCompanyChange: debounce(async function(company) {
-			await this.updatePrimaryCompany(company)
+		debounceBiographyChange: debounce(async function(biography) {
+			await this.updatePrimaryBiography(biography)
 		}, 500),
 
-		async updatePrimaryCompany(company) {
+		async updatePrimaryBiography(biography) {
 			try {
-				const responseData = await savePrimaryAccountProperty(ACCOUNT_PROPERTY_ENUM.COMPANY, company)
+				const responseData = await savePrimaryAccountProperty(ACCOUNT_PROPERTY_ENUM.BIOGRAPHY, biography)
 				this.handleResponse({
-					company,
+					biography,
 					status: responseData.ocs?.meta?.status,
 				})
 			} catch (e) {
 				this.handleResponse({
-					errorMessage: t('settings', 'Unable to update company'),
+					errorMessage: t('settings', 'Unable to update biography'),
 					error: e,
 				})
 			}
 		},
 
-		handleResponse({ company, status, errorMessage, error }) {
+		handleResponse({ biography, status, errorMessage, error }) {
 			if (status === 'ok') {
 				// Ensure that local state reflects server state
-				this.initialCompany = company
-				emit('settings:company:updated', company)
+				this.initialBiography = biography
+				emit('settings:biography:updated', biography)
 				this.showCheckmarkIcon = true
 				setTimeout(() => { this.showCheckmarkIcon = false }, 2000)
 			} else {
@@ -120,14 +120,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.company {
+.biography {
 	display: grid;
 	align-items: center;
 
-	input {
+	textarea {
+		resize: none;
 		grid-area: 1 / 1;
 		width: 100%;
-		height: 34px;
 		margin: 3px 3px 3px 0;
 		padding: 7px 6px;
 		color: var(--color-main-text);
@@ -136,16 +136,23 @@ export default {
 		background-color: var(--color-main-background);
 		font-family: var(--font-face);
 		cursor: text;
+
+		&:hover {
+			border-color: var(--color-primary-element) !important;
+			outline: none !important;
+		}
 	}
 
-	.company__actions-container {
+	.biography__actions-container {
 		grid-area: 1 / 1;
 		justify-self: flex-end;
+		align-self: flex-end;
 		height: 30px;
 
 		display: flex;
 		gap: 0 2px;
 		margin-right: 5px;
+		margin-bottom: 5px;
 
 		.icon-checkmark,
 		.icon-error {

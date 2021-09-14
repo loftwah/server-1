@@ -17,6 +17,7 @@
 	-
 	- You should have received a copy of the GNU Affero General Public License
 	- along with this program. If not, see <http://www.gnu.org/licenses/>.
+	-
 -->
 
 <template>
@@ -24,7 +25,6 @@
 		<HeaderBar
 			:account-property="accountProperty"
 			label-for="company"
-			:is-valid-section="isValidSection"
 			:scope.sync="primaryCompany.scope" />
 
 		<Company
@@ -40,7 +40,6 @@ import Company from './Company'
 import HeaderBar from '../shared/HeaderBar'
 
 import { ACCOUNT_PROPERTY_READABLE_ENUM } from '../../../constants/AccountPropertyConstants'
-import { validateStringInput } from '../../../utils/validate'
 
 const { companyMap: { primaryCompany } } = loadState('settings', 'personalInfoParameters', {})
 
@@ -57,12 +56,6 @@ export default {
 			accountProperty: ACCOUNT_PROPERTY_READABLE_ENUM.COMPANY,
 			primaryCompany,
 		}
-	},
-
-	computed: {
-		isValidSection() {
-			return validateStringInput(this.primaryCompany.value)
-		},
 	},
 }
 </script>

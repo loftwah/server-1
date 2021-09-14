@@ -17,14 +17,14 @@
 	-
 	- You should have received a copy of the GNU Affero General Public License
 	- along with this program. If not, see <http://www.gnu.org/licenses/>.
+	-
 -->
 
 <template>
 	<section>
 		<HeaderBar
 			:account-property="accountProperty"
-			label-for="language"
-			:is-valid-section="isValidSection" />
+			label-for="language" />
 
 		<template v-if="isEditable">
 			<Language
@@ -46,7 +46,6 @@ import Language from './Language'
 import HeaderBar from '../shared/HeaderBar'
 
 import { ACCOUNT_SETTING_PROPERTY_READABLE_ENUM } from '../../../constants/AccountPropertyConstants'
-import { validateLanguage } from '../../../utils/validate'
 
 const { languageMap: { activeLanguage, commonLanguages, otherLanguages } } = loadState('settings', 'personalInfoParameters', {})
 
@@ -70,10 +69,6 @@ export default {
 	computed: {
 		isEditable() {
 			return Boolean(this.language)
-		},
-
-		isValidSection() {
-			return validateLanguage(this.language)
 		},
 	},
 }

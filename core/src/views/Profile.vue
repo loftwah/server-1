@@ -57,40 +57,34 @@
 				<div class="user-actions">
 					<PrimaryActionButton v-if="primaryAction"
 						class="user-actions__primary"
-						:href="primaryAction.href"
-						:icon="primaryAction.icon"
-						:disabled="actionsDisabled">
-						{{ primaryAction.label }}
+						:href="primaryAction.target"
+						:icon="primaryAction.icon">
+						{{ primaryAction.title }}
 					</PrimaryActionButton>
 					<div class="user-actions__other">
 						<Actions v-for="action in allActions.slice(1, 4)"
 							:key="action.icon"
-							:class="{ 'disabled': actionsDisabled }"
 							:default-icon="action.icon"
-							:menu-title="action.label"
-							:disabled="actionsDisabled">
+							:menu-title="action.title">
 							<ActionLink
-								:class="{ 'disabled': actionsDisabled }"
 								:close-after-click="true"
 								:icon="action.icon"
-								:href="action.href"
+								:href="action.target"
 								:target="action.name === 'phone' ? '_self' :'_blank'"
-								:title="action.label">
-								{{ action.label }}
+								:title="action.title">
+								{{ action.title }}
 							</ActionLink>
 						</Actions>
 						<template v-if="otherActions">
 							<Actions v-for="action in otherActions"
 								:key="action.icon"
-								:class="{ 'disabled': actionsDisabled }"
 								:force-menu="true">
 								<ActionLink
-									:class="{ 'disabled': actionsDisabled }"
 									:close-after-click="true"
-									:href="action.href"
+									:href="action.target"
 									:target="action.name === 'phone' ? '_self' :'_blank'"
 									:icon="action.icon">
-									{{ action.label }}
+									{{ action.title }}
 								</ActionLink>
 							</Actions>
 						</template>
@@ -101,7 +95,7 @@
 			<div class="profile__blocks">
 				<div class="profile__blocks-details">
 					<div v-if="company || jobTitle" class="detail">
-						<p>{{ company && `${company} •` }} {{ jobTitle }}</p>
+						<p>{{ company }} {{ (company && jobTitle) && '•' }} {{ jobTitle }}</p>
 					</div>
 					<div v-if="address" class="detail">
 						<p>
@@ -115,10 +109,10 @@
 				</div>
 				<template v-if="headline || biography">
 					<div class="profile__blocks-headline">
-						<h3>{{ headline || 'Your headline here!' }}</h3>
+						<h3>{{ headline || t('core', 'Your headline will appear here') }}</h3>
 					</div>
 					<div class="profile__blocks-biography">
-						<p>{{ biography || 'Add your biography!' }}</p>
+						<p>{{ biography || t('core', 'Your biography will appear here') }}</p>
 					</div>
 				</template>
 				<template v-else>
@@ -155,8 +149,10 @@ import { showError } from '@nextcloud/dialogs'
 
 import PrimaryActionButton from '../components/Profile/PrimaryActionButton'
 
-const { userId, company, jobTitle, displayName, address, actionParameters } = loadState('core', 'profileParameters', {})
+const { actionParameters, userId, biography, company, headline, jobTitle, displayName, address } = loadState('core', 'profileParameters', {})
 const status = loadState('core', 'status', {})
+
+// const actionParameters = []
 
 export default {
 	name: 'Profile',
@@ -179,8 +175,8 @@ export default {
 			status,
 			company,
 			jobTitle,
-			headline: 'This is my headline!',
-			biography: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.',
+			headline,
+			biography,
 		}
 	},
 
@@ -201,42 +197,7 @@ export default {
 		},
 
 		allActions() {
-			const actionMap = {
-				talkEnabled: {
-					name: 'talk',
-					icon: 'icon-talk',
-					label: `${t('core', 'Talk to')} ${this.displayName}`,
-					href: generateUrl('apps/spreed?callUser={userId}', { userId }),
-				},
-				email: {
-					name: 'email',
-					icon: 'icon-mail',
-					label: `${t('core', 'Email')} ${actionParameters.email}`,
-					href: `mailto:${actionParameters.email}`,
-				},
-				phoneNumber: {
-					name: 'phone',
-					icon: 'icon-phone',
-					label: `${t('core', 'Call phone number')} (${actionParameters.phoneNumber})`,
-					href: `tel:${actionParameters.phoneNumber}`,
-				},
-				website: {
-					name: 'website',
-					icon: 'icon-timezone',
-					label: `${t('core', 'Visit website')} (${actionParameters.website})`,
-					href: actionParameters.website,
-				},
-				twitterUsername: {
-					name: 'twitter',
-					icon: 'icon-twitter',
-					label: `${t('core', 'View Twitter profile')} ${actionParameters.twitterUsername[0] === '@' ? actionParameters.twitterUsername : `@${actionParameters.twitterUsername}`}`,
-					href: `https://twitter.com/${actionParameters.twitterUsername}`,
-				},
-			}
-
-			return Object.entries(actionParameters)
-				.filter(([_, value]) => value)
-				.map(([key, _]) => actionMap[key])
+			return actionParameters
 		},
 
 		otherActions() {
@@ -436,7 +397,7 @@ $content-max-width: 640px;
 		}
 
 		&-headline {
-			margin-top: 8px;
+			margin-top: 10px;
 
 			h3 {
 				font-weight: bold;
@@ -484,21 +445,12 @@ $content-max-width: 640px;
 	display: flex;
 	flex-direction: column;
 	gap: 5px 0;
-	margin-top: 10px;
+	margin-top: 20px;
 
 	&__other {
 		display: flex;
 		justify-content: center;
 		gap: 0 5px;
-	}
-}
-
-.disabled {
-	// opacity: 0.5 !important;
-	// cursor: default !important;
-
-	&::v-deep * {
-		// cursor: default !important;
 	}
 }
 </style>

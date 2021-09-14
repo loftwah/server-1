@@ -17,6 +17,7 @@
 	-
 	- You should have received a copy of the GNU Affero General Public License
 	- along with this program. If not, see <http://www.gnu.org/licenses/>.
+	-
 -->
 
 <template>
@@ -24,7 +25,6 @@
 		<select
 			id="language"
 			:placeholder="t('settings', 'Language')"
-			required
 			@change="onLanguageChange">
 			<option v-for="commonLanguage in commonLanguages"
 				:key="commonLanguage.code"
@@ -112,7 +112,7 @@ export default {
 				this.reloadPage()
 			} catch (e) {
 				this.handleResponse({
-					errorMessage: 'Unable to update language',
+					errorMessage: t('settings', 'Unable to update language'),
 					error: e,
 				})
 			}
@@ -130,7 +130,7 @@ export default {
 				// Ensure that local state reflects server state
 				this.initialLanguage = language
 			} else {
-				showError(t('settings', errorMessage))
+				showError(errorMessage)
 				this.logger.error(errorMessage, error)
 			}
 		},

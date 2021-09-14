@@ -21,53 +21,51 @@
 -->
 
 <template>
-	<button
-		:disabled="disabled"
-		v-on="$listeners">
-		<span class="icon icon-add" />
-		{{ t('settings', 'Add') }}
-	</button>
+	<section>
+		<HeaderBar
+			:account-property="accountProperty"
+			label-for="biography"
+			:scope.sync="primaryBiography.scope" />
+
+		<Biography
+			:biography.sync="primaryBiography.value"
+			:scope.sync="primaryBiography.scope" />
+	</section>
 </template>
 
 <script>
-export default {
-	name: 'AddButton',
+import { loadState } from '@nextcloud/initial-state'
 
-	props: {
-		disabled: {
-			type: Boolean,
-			default: true,
-		},
+import Biography from './Biography'
+import HeaderBar from '../shared/HeaderBar'
+
+import { ACCOUNT_PROPERTY_READABLE_ENUM } from '../../../constants/AccountPropertyConstants'
+
+const { biographyMap: { primaryBiography } } = loadState('settings', 'personalInfoParameters', {})
+
+export default {
+	name: 'BiographySection',
+
+	components: {
+		Biography,
+		HeaderBar,
+	},
+
+	data() {
+		return {
+			accountProperty: ACCOUNT_PROPERTY_READABLE_ENUM.BIOGRAPHY,
+			primaryBiography,
+		}
 	},
 }
 </script>
 
 <style lang="scss" scoped>
-	button {
-		height: 44px;
-		padding: 0 16px;
-		border: none;
-		background-color: transparent;
+section {
+	padding: 10px 10px;
 
-		.icon {
-			margin-right: 8px;
-		}
-
-		&:enabled {
-			opacity: 0.4 !important;
-
-			.icon {
-				opacity: 0.8 !important;
-			}
-		}
-
-		&:hover {
-			background-color: rgba(127, 127, 127, .15);
-		}
-
-		&:enabled:hover {
-			background-color: rgba(127, 127, 127, .25);
-			opacity: 0.8 !important;
-		}
+	&::v-deep button:disabled {
+		cursor: default;
 	}
+}
 </style>

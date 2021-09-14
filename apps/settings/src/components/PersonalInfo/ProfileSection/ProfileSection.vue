@@ -17,13 +17,13 @@
 	-
 	- You should have received a copy of the GNU Affero General Public License
 	- along with this program. If not, see <http://www.gnu.org/licenses/>.
+	-
 -->
 
 <template>
 	<section>
 		<HeaderBar
-			:account-property="accountProperty"
-			:is-valid-section="isValidSection" />
+			:account-property="accountProperty" />
 
 		<ProfileCheckbox
 			:profile-enabled.sync="profileEnabled" />
@@ -71,12 +71,6 @@ export default {
 			profileEnabled,
 			userId,
 		}
-	},
-
-	computed: {
-		isValidSection() {
-			return validateEnableProfile(this.profileEnabled)
-		},
 	},
 
 	mounted() {

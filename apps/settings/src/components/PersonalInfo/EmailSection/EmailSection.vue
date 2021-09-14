@@ -17,6 +17,7 @@
 	-
 	- You should have received a copy of the GNU Affero General Public License
 	- along with this program. If not, see <http://www.gnu.org/licenses/>.
+	-
 -->
 
 <template>
@@ -141,7 +142,11 @@ export default {
 				const responseData = await savePrimaryEmail(this.primaryEmailValue)
 				this.handleResponse(responseData.ocs?.meta?.status)
 			} catch (e) {
-				this.handleResponse('error', 'Unable to update primary email address', e)
+				this.handleResponse(
+					'error',
+					t('settings', 'Unable to update primary email address'),
+					e
+				)
 			}
 		},
 
@@ -150,7 +155,11 @@ export default {
 				const responseData = await removeAdditionalEmail(this.firstAdditionalEmail)
 				this.handleDeleteFirstAdditionalEmail(responseData.ocs?.meta?.status)
 			} catch (e) {
-				this.handleResponse('error', 'Unable to delete additional email address', e)
+				this.handleResponse(
+					'error',
+					t('settings', 'Unable to delete additional email address'),
+					e
+				)
 			}
 		},
 
@@ -158,13 +167,17 @@ export default {
 			if (status === 'ok') {
 				this.$delete(this.additionalEmails, 0)
 			} else {
-				this.handleResponse('error', 'Unable to delete additional email address', {})
+				this.handleResponse(
+					'error',
+					t('settings', 'Unable to delete additional email address'),
+					{}
+				)
 			}
 		},
 
 		handleResponse(status, errorMessage, error) {
 			if (status !== 'ok') {
-				showError(t('settings', errorMessage))
+				showError(errorMessage)
 				this.logger.error(errorMessage, error)
 			}
 		},

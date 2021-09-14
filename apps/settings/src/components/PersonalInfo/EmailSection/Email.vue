@@ -17,6 +17,7 @@
 	-
 	- You should have received a copy of the GNU Affero General Public License
 	- along with this program. If not, see <http://www.gnu.org/licenses/>.
+	-
 -->
 
 <template>
@@ -31,7 +32,6 @@
 				autocapitalize="none"
 				autocomplete="on"
 				autocorrect="off"
-				required
 				@input="onEmailChange">
 
 			<div class="email__actions-container">
@@ -245,12 +245,12 @@ export default {
 			} catch (e) {
 				if (email === '') {
 					this.handleResponse({
-						errorMessage: 'Unable to delete primary email address',
+						errorMessage: t('settings', 'Unable to delete primary email address'),
 						error: e,
 					})
 				} else {
 					this.handleResponse({
-						errorMessage: 'Unable to update primary email address',
+						errorMessage: t('settings', 'Unable to update primary email address'),
 						error: e,
 					})
 				}
@@ -266,7 +266,7 @@ export default {
 				})
 			} catch (e) {
 				this.handleResponse({
-					errorMessage: 'Unable to add additional email address',
+					errorMessage: t('settings', 'Unable to add additional email address'),
 					error: e,
 				})
 			}
@@ -297,7 +297,7 @@ export default {
 				})
 			} catch (e) {
 				this.handleResponse({
-					errorMessage: 'Unable to update additional email address',
+					errorMessage: t('settings', 'Unable to update additional email address'),
 					error: e,
 				})
 			}
@@ -309,7 +309,7 @@ export default {
 				this.handleDeleteAdditionalEmail(responseData.ocs?.meta?.status)
 			} catch (e) {
 				this.handleResponse({
-					errorMessage: 'Unable to delete additional email address',
+					errorMessage: t('settings', 'Unable to delete additional email address'),
 					error: e,
 				})
 			}
@@ -320,7 +320,7 @@ export default {
 				this.$emit('delete-additional-email')
 			} else {
 				this.handleResponse({
-					errorMessage: 'Unable to delete additional email address',
+					errorMessage: t('settings', 'Unable to delete additional email address'),
 				})
 			}
 		},
@@ -336,7 +336,7 @@ export default {
 				this.showCheckmarkIcon = true
 				setTimeout(() => { this.showCheckmarkIcon = false }, 2000)
 			} else {
-				showError(t('settings', errorMessage))
+				showError(errorMessage)
 				this.logger.error(errorMessage, error)
 				this.showErrorIcon = true
 				setTimeout(() => { this.showErrorIcon = false }, 2000)

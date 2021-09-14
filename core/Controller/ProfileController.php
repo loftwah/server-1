@@ -27,13 +27,13 @@ declare(strict_types=1);
 
 namespace OC\Core\Controller;
 
-use TalkAction;
-use EmailAction;
-use PhoneAction;
-use WesbsiteAction;
-use TwitterAction;
-use function Safe\substr;
 use \OCP\AppFramework\Controller;
+use function Safe\substr;
+use OC\Profile\Actions\EmailAction;
+use OC\Profile\Actions\PhoneAction;
+use OC\Profile\Actions\TalkAction;
+use OC\Profile\Actions\TwitterAction;
+use OC\Profile\Actions\WebsiteAction;
 use OCA\Federation\TrustedServers;
 use OCP\Accounts\IAccount;
 use OCP\Accounts\IAccountManager;
@@ -41,12 +41,13 @@ use OCP\Accounts\IAccountProperty;
 use OCP\App\IAppManager;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Services\IInitialState;
-use OCP\IL10N;
+// use OCP\IL10N;
 use OCP\IRequest;
 use OCP\IURLGenerator;
 use OCP\IUserManager;
 use OCP\IUserSession;
 use OCP\Profile\IActionManager;
+use OCP\Profile\IProfileAction;
 use OCP\UserStatus\IManager as IUserStatusManager;
 use Psr\Container\ContainerInterface;
 
@@ -59,10 +60,10 @@ class ProfileController extends Controller {
 	private $trustedServers;
 
 	/** @var IL10N */
-	private $l10n;
+	// private $l10n;
 
 	/** @var ContainerInterface */
-	private $containerInterface;
+	// private $containerInterface;
 
 	/** @var IUserSession */
 	private $userSession;
@@ -88,7 +89,7 @@ class ProfileController extends Controller {
 	public function __construct(
 		$appName,
 		IRequest $request,
-		IL10N $l10n,
+		// IL10N $l10n,
 		ContainerInterface $containerInterface,
 		IURLGenerator $urlGenerator,
 		TrustedServers $trustedServers,
@@ -101,7 +102,7 @@ class ProfileController extends Controller {
 		IActionManager $actionManager
 	) {
 		parent::__construct($appName, $request);
-		$this->l10n = $l10n;
+		// $this->l10n = $l10n;
 		$this->containerInterface = $containerInterface;
 		$this->urlGenerator = $urlGenerator;
 		$this->trustedServers = $trustedServers;
@@ -277,6 +278,8 @@ class ProfileController extends Controller {
 			'address' => $account->getProperty(IAccountManager::PROPERTY_ADDRESS)->getValue(),
 			'company' => $account->getProperty(IAccountManager::PROPERTY_COMPANY)->getValue(),
 			'jobTitle' => $account->getProperty(IAccountManager::PROPERTY_JOB_TITLE)->getValue(),
+			'headline' => $account->getProperty(IAccountManager::PROPERTY_HEADLINE)->getValue(),
+			'biography' => $account->getProperty(IAccountManager::PROPERTY_BIOGRAPHY)->getValue(),
 			// Ordered by precedence, order is preserved in PHP and modern JavaScript
 			'actionParameters' => $actionParameters,
 		];
@@ -291,7 +294,7 @@ class ProfileController extends Controller {
 		$talkEnabled = $this->appManager->isEnabledForUser('spreed', $account->getUser());
 
 		if ($talkEnabled) {
-			$this->actionManager->registerAction($this->containerInterface->get(TalkAction::class), $userId);
+			$this->actionManager->registerAction(TalkAction::class, $userId);
 		}
 
 		foreach (self::PROFILE_ACTION_PROPERTIES as $property) {
@@ -303,24 +306,36 @@ class ProfileController extends Controller {
 			}
 			// The other less strict scopes all allow public link access
 
-			switch ($property) {
-				case IAccountManager::PROPERTY_EMAIL:
-					$this->actionManager->registerAction($this->containerInterface->get(EmailAction::class), $value);
-					break;
-				case IAccountManager::PROPERTY_PHONE:
-					$this->actionManager->registerAction($this->containerInterface->get(PhoneAction::class), $value);
-					break;
-				case IAccountManager::PROPERTY_WEBSITE:
-					$this->actionManager->registerAction($this->containerInterface->get(WebsiteAction::class), $value);
-					break;
-				case IAccountManager::PROPERTY_TWITTER:
-					$this->actionManager->registerAction($this->containerInterface->get(TwitterAction::class), $value);
-					break;
-				default:
-					break;
+			if (!empty($value)) {
+				switch ($property) {
+					case IAccountManager::PROPERTY_EMAIL:
+						$this->actionManager->registerAction(EmailAction::class, $value);
+						break;
+					case IAccountManager::PROPERTY_PHONE:
+						$this->actionManager->registerAction(PhoneAction::class, $value);
+						break;
+					case IAccountManager::PROPERTY_WEBSITE:
+						$this->actionManager->registerAction(WebsiteAction::class, $value);
+						break;
+					case IAccountManager::PROPERTY_TWITTER:
+						$this->actionManager->registerAction(TwitterAction::class, $value);
+						break;
+					default:
+						break;
+				}
 			}
 		}
 
-		return $this->actionManager->getActions();
+		return array_map(
+			function (IProfileAction $action) {
+				return [
+					'name' => $action->getName(),
+					'icon' => $action->getIcon(),
+					'title' => $action->getTitle(),
+					'target' => $action->getTarget(),
+				];
+			},
+			$this->actionManager->getActions()
+		);
 	}
 }

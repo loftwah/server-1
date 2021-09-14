@@ -22,15 +22,23 @@
  *
  */
 
+namespace OC\Profile;
+
 use OCP\Profile\IActionManager;
-use OCP\Profile\IProfileAction;
+use Psr\Container\ContainerInterface;
 
 /**
  * @since 23
  */
 class ActionManager implements IActionManager {
 
-	public function __construct() {
+	/** @var ContainerInterface */
+	private $container;
+
+	public function __construct(
+		ContainerInterface $container
+	) {
+		$this->container = $container;
 	}
 
 	/** @var array */
@@ -39,7 +47,8 @@ class ActionManager implements IActionManager {
 	/**
 	 * @inheritDoc
 	 */
-	public function registerAction(IProfileAction $action, string $value) {
+	public function registerAction(string $action, string $value): void {
+		$action = $this->container->get($action);
 		$action->setValue($value);
 		$this->actions[] = $action;
 	}

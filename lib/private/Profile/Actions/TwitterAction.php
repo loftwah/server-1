@@ -1,9 +1,5 @@
 <?php
 
-use OCP\IL10N;
-use OCP\IURLGenerator;
-use OCP\Profile\IProfileAction;
-
 /**
  * @copyright Copyright (c) 2021 John Molakvoæ <skjnldsv@protonmail.com>
  *
@@ -26,10 +22,16 @@ use OCP\Profile\IProfileAction;
  *
  */
 
-class WebsiteAction implements IProfileAction {
+namespace OC\Profile\Actions;
 
-	/** @var IL10N */
-	private $l10n;
+use OCP\IURLGenerator;
+use OCP\L10N\IFactory;
+use OCP\Profile\IProfileAction;
+
+class TwitterAction implements IProfileAction {
+
+	/** @var IFactory */
+	private $l10nFactory;
 
 	/** @var IUrlGenerator */
 	private $urlGenerator;
@@ -44,31 +46,32 @@ class WebsiteAction implements IProfileAction {
 	 * @param IURLGenerator $urlGenerator
 	 */
 	public function __construct(
-		IL10N $l10n,
+		IFactory $l10nFactory,
 		IURLGenerator $urlGenerator
 	) {
-		$this->l10n = $l10n;
+		$this->l10nFactory = $l10nFactory;
 		$this->urlGenerator = $urlGenerator;
 	}
 
 	public function getName(): string {
-		return 'website';
+		return 'twitter';
 	}
 
 	public function getTitle(): string {
-		return $this->l10n->t('Go to %s', [$this->value]);
+		$this->value = $this->value[0] === '@' ? $this->value : '@' . $this->value;
+		return $this->l10nFactory->get('core')->t('View %s on Twitter', [$this->value]);
 	}
 
 	public function getPriority(): int {
-		return 40;
+		return 50;
 	}
 
 	public function getIcon(): string {
-		return 'icon-timezone';
+		return 'icon-twitter';
 	}
 
 	public function getTarget(): string {
-		return $this->value;
+		return 'https://twitter.com/' . $this->value;
 	}
 
 	public function setValue(string $value): string {

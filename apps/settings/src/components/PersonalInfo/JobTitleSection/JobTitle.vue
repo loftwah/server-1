@@ -17,6 +17,7 @@
 	-
 	- You should have received a copy of the GNU Affero General Public License
 	- along with this program. If not, see <http://www.gnu.org/licenses/>.
+	-
 -->
 
 <template>
@@ -29,7 +30,6 @@
 			autocapitalize="none"
 			autocomplete="on"
 			autocorrect="off"
-			required
 			@input="onJobTitleChange">
 
 		<div class="jobtitle__actions-container">
@@ -48,7 +48,6 @@ import debounce from 'debounce'
 
 import { ACCOUNT_PROPERTY_ENUM } from '../../../constants/AccountPropertyConstants'
 import { savePrimaryAccountProperty } from '../../../service/PersonalInfo/PersonalInfoService'
-import { validateStringInput } from '../../../utils/validate'
 
 export default {
 	name: 'JobTitle',
@@ -80,9 +79,7 @@ export default {
 		},
 
 		debounceJobTitleChange: debounce(async function(jobTitle) {
-			if (validateStringInput(jobTitle)) {
-				await this.updatePrimaryJobTitle(jobTitle)
-			}
+			await this.updatePrimaryJobTitle(jobTitle)
 		}, 500),
 
 		async updatePrimaryJobTitle(jobTitle) {
@@ -94,7 +91,7 @@ export default {
 				})
 			} catch (e) {
 				this.handleResponse({
-					errorMessage: 'Unable to update job title',
+					errorMessage: t('settings', 'Unable to update job title'),
 					error: e,
 				})
 			}
@@ -108,7 +105,7 @@ export default {
 				this.showCheckmarkIcon = true
 				setTimeout(() => { this.showCheckmarkIcon = false }, 2000)
 			} else {
-				showError(t('settings', errorMessage))
+				showError(errorMessage)
 				this.logger.error(errorMessage, error)
 				this.showErrorIcon = true
 				setTimeout(() => { this.showErrorIcon = false }, 2000)

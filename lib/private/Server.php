@@ -1379,6 +1379,8 @@ class Server extends ServerContainer implements IServerContainer {
 
 		$this->registerAlias(\OCP\UserStatus\IManager::class, \OC\UserStatus\Manager::class);
 
+		$this->registerAlias(\OCP\Profile\IActionManager::class, \OC\Profile\ActionManager::class);
+
 		$this->connectDispatcher();
 	}
 

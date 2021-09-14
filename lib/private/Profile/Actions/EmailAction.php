@@ -1,9 +1,5 @@
 <?php
 
-use OCP\IL10N;
-use OCP\IURLGenerator;
-use OCP\Profile\IProfileAction;
-
 /**
  * @copyright Copyright (c) 2021 John Molakvoæ <skjnldsv@protonmail.com>
  *
@@ -26,10 +22,16 @@ use OCP\Profile\IProfileAction;
  *
  */
 
-class TwitterAction implements IProfileAction {
+namespace OC\Profile\Actions;
 
-	/** @var IL10N */
-	private $l10n;
+use OCP\IURLGenerator;
+use OCP\L10N\IFactory;
+use OCP\Profile\IProfileAction;
+
+class EmailAction implements IProfileAction {
+
+	/** @var IFactory */
+	private $l10nFactory;
 
 	/** @var IUrlGenerator */
 	private $urlGenerator;
@@ -44,32 +46,31 @@ class TwitterAction implements IProfileAction {
 	 * @param IURLGenerator $urlGenerator
 	 */
 	public function __construct(
-		IL10N $l10n,
+		IFactory $l10nFactory,
 		IURLGenerator $urlGenerator
 	) {
-		$this->l10n = $l10n;
+		$this->l10nFactory = $l10nFactory;
 		$this->urlGenerator = $urlGenerator;
 	}
 
 	public function getName(): string {
-		return 'twitter';
+		return 'email';
 	}
 
 	public function getTitle(): string {
-		$this->value = $this->value[0] === '@' ? $this->value : '@' . $this->value;
-		return $this->l10n->t('View %s on Twitter', [$this->value]);
+		return $this->l10nFactory->get('core')->t('Mail %s', [$this->value]);
 	}
 
 	public function getPriority(): int {
-		return 50;
+		return 20;
 	}
 
 	public function getIcon(): string {
-		return 'icon-twitter';
+		return 'icon-mail';
 	}
 
 	public function getTarget(): string {
-		return 'https://twitter.com/' . $this->value;
+		return 'mailto:' . $this->value;
 	}
 
 	public function setValue(string $value): string {

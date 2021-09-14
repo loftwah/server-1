@@ -17,6 +17,7 @@
 	-
 	- You should have received a copy of the GNU Affero General Public License
 	- along with this program. If not, see <http://www.gnu.org/licenses/>.
+	-
 -->
 
 <template>
@@ -24,7 +25,6 @@
 		<HeaderBar
 			:account-property="accountProperty"
 			label-for="jobtitle"
-			:is-valid-section="isValidSection"
 			:scope.sync="primaryJobTitle.scope" />
 
 		<JobTitle
@@ -40,7 +40,6 @@ import JobTitle from './JobTitle'
 import HeaderBar from '../shared/HeaderBar'
 
 import { ACCOUNT_PROPERTY_READABLE_ENUM } from '../../../constants/AccountPropertyConstants'
-import { validateStringInput } from '../../../utils/validate'
 
 const { jobTitleMap: { primaryJobTitle } } = loadState('settings', 'personalInfoParameters', {})
 
@@ -57,12 +56,6 @@ export default {
 			accountProperty: ACCOUNT_PROPERTY_READABLE_ENUM.JOB_TITLE,
 			primaryJobTitle,
 		}
-	},
-
-	computed: {
-		isValidSection() {
-			return validateStringInput(this.primaryJobTitle.value)
-		},
 	},
 }
 </script>
