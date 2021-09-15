@@ -24,24 +24,21 @@ declare(strict_types=1);
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
 namespace OCA\UserStatus\Listener;
 
-use OCP\Accounts\IAccount;
 use OCP\Accounts\IAccountManager;
 use OCP\IUserSession;
 use OCA\UserStatus\AppInfo\Application;
 use OCA\UserStatus\Service\JSDataService;
-use OCP\Accounts\PropertyDoesNotExistException;
 use OCP\AppFramework\Http\Events\BeforeTemplateRenderedEvent;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use OCP\IInitialStateService;
-use OCP\User\Events\BeforeUserLoggedInEvent;
-use OCP\User\Events\PostLoginEvent;
-use OCP\User\Events\UserLiveStatusEvent;
 
 class BeforeTemplateRenderedListener implements IEventListener {
+	use \OC\Accounts\TAccountsHelper;
 
 	/** @var IAccountManager */
 	private $accountManager;
@@ -99,24 +96,10 @@ class BeforeTemplateRenderedListener implements IEventListener {
 		});
 
 		$this->initialState->provideLazyInitialState(Application::APP_ID, 'profileEnabled', function () use ($account) {
-			return ['profileEnabled' => $this->getProfileEnabled($account)];
+			return ['profileEnabled' => $this->isProfileEnabled($account)];
 		});
 
 		\OCP\Util::addScript('user_status', 'user-status-menu');
 		\OCP\Util::addStyle('user_status', 'user-status-menu');
-	}
-
-	/**
-	 * returns the profile enabled state
-	 *
-	 * @param IAccount $account
-	 * @return bool
-	 */
-	private function getProfileEnabled(IAccount $account): bool {
-		return filter_var(
-			$account->getProperty(IAccountManager::PROPERTY_PROFILE_ENABLED)->getValue(),
-			FILTER_VALIDATE_BOOLEAN,
-			FILTER_NULL_ON_FAILURE,
-		);
 	}
 }

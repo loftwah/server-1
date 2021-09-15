@@ -25,19 +25,27 @@
 namespace OC\Profile\Actions;
 
 use OCP\IURLGenerator;
+use OCP\IUserManager;
+use OCP\IUserSession;
 use OCP\L10N\IFactory;
 use OCP\Profile\IProfileAction;
 
 class TalkAction implements IProfileAction {
 
+	/** @var string */
+	private $value;
+
 	/** @var IFactory */
 	private $l10nFactory;
 
+	/** @var IUserManager */
+	private $userManager;
+
+	/** @var IUserSession */
+	private $userSession;
+
 	/** @var IUrlGenerator */
 	private $urlGenerator;
-
-	/** @var string */
-	private $value;
 
 	/**
 	 * Action constructor
@@ -47,9 +55,13 @@ class TalkAction implements IProfileAction {
 	 */
 	public function __construct(
 		IFactory $l10nFactory,
+		IUserManager $userManager,
+		IUserSession $userSession,
 		IURLGenerator $urlGenerator
 	) {
 		$this->l10nFactory = $l10nFactory;
+		$this->userManager = $userManager;
+		$this->userSession = $userSession;
 		$this->urlGenerator = $urlGenerator;
 	}
 
@@ -58,7 +70,21 @@ class TalkAction implements IProfileAction {
 	}
 
 	public function getTitle(): string {
-		return $this->l10nFactory->get('core')->t('Talk to %s', [$this->value]);
+		$visitingUser = $this->userSession->getUser();
+		$targetUser = $this->userManager->get($this->value);
+		if ($visitingUser === $targetUser) {
+			return $this->l10nFactory->get('core')->t('Open Talk');
+		}
+		return $this->l10nFactory->get('core')->t('Talk to %s', [$targetUser->getDisplayName()]);
+	}
+
+	public function getLabel(): string {
+		$visitingUser = $this->userSession->getUser();
+		$targetUser = $this->userManager->get($this->value);
+		if ($visitingUser === $targetUser) {
+			return $this->l10nFactory->get('core')->t('Open Talk');
+		}
+		return $this->l10nFactory->get('core')->t('Talk');
 	}
 
 	public function getPriority(): int {
@@ -66,10 +92,15 @@ class TalkAction implements IProfileAction {
 	}
 
 	public function getIcon(): string {
-		return 'icon-talk';
+		return $this->urlGenerator->getAbsoluteURL($this->urlGenerator->imagePath('spreed', 'app-dark.svg'));
 	}
 
 	public function getTarget(): string {
+		$visitingUser = $this->userSession->getUser();
+		$targetUser = $this->userManager->get($this->value);
+		if ($visitingUser === $targetUser) {
+			return $this->urlGenerator->linkToRouteAbsolute('spreed.Page.index');
+		}
 		return $this->urlGenerator->linkToRouteAbsolute('spreed.Page.index') . '?callUser=' . $this->value;
 	}
 

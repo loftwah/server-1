@@ -65,7 +65,7 @@ import Email from './Email'
 import HeaderBar from '../shared/HeaderBar'
 
 import { ACCOUNT_PROPERTY_READABLE_ENUM, DEFAULT_ADDITIONAL_EMAIL_SCOPE } from '../../../constants/AccountPropertyConstants'
-import { savePrimaryEmail, removeAdditionalEmail } from '../../../service/PersonalInfo/EmailService'
+import { savePrimaryEmail, savePrimaryEmailScope, removeAdditionalEmail } from '../../../service/PersonalInfo/EmailService'
 import { validateEmail } from '../../../utils/validate'
 
 const { emailMap: { additionalEmails, primaryEmail, notificationEmail } } = loadState('settings', 'personalInfoParameters', {})

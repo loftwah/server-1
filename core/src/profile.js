@@ -24,6 +24,7 @@ import Vue from 'vue'
 import { generateFilePath } from '@nextcloud/router'
 import { getRequestToken } from '@nextcloud/auth'
 import { translate as t } from '@nextcloud/l10n'
+import VTooltip from 'v-tooltip'
 
 import logger from './logger'
 
@@ -31,6 +32,8 @@ import Profile from './views/Profile'
 
 __webpack_nonce__ = btoa(getRequestToken())
 __webpack_public_path__ = generateFilePath('core', '', 'js/')
+
+Vue.use(VTooltip)
 
 Vue.mixin({
 	props: {

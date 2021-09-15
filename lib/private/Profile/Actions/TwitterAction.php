@@ -30,14 +30,14 @@ use OCP\Profile\IProfileAction;
 
 class TwitterAction implements IProfileAction {
 
+	/** @var string */
+	private $value;
+
 	/** @var IFactory */
 	private $l10nFactory;
 
 	/** @var IUrlGenerator */
 	private $urlGenerator;
-
-	/** @var string */
-	private $value;
 
 	/**
 	 * Action constructor
@@ -58,8 +58,12 @@ class TwitterAction implements IProfileAction {
 	}
 
 	public function getTitle(): string {
-		$this->value = $this->value[0] === '@' ? $this->value : '@' . $this->value;
-		return $this->l10nFactory->get('core')->t('View %s on Twitter', [$this->value]);
+		$displayUsername = $this->value[0] === '@' ? $this->value : '@' . $this->value;
+		return $this->l10nFactory->get('core')->t('View %s on Twitter', [$displayUsername]);
+	}
+
+	public function getLabel(): string {
+		return $this->l10nFactory->get('core')->t('Open Twitter profile');
 	}
 
 	public function getPriority(): int {
@@ -67,7 +71,7 @@ class TwitterAction implements IProfileAction {
 	}
 
 	public function getIcon(): string {
-		return 'icon-twitter';
+		return $this->urlGenerator->getAbsoluteURL($this->urlGenerator->imagePath('core', 'actions/twitter.svg'));
 	}
 
 	public function getTarget(): string {

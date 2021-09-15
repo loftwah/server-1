@@ -30,14 +30,14 @@ use OCP\Profile\IProfileAction;
 
 class EmailAction implements IProfileAction {
 
+	/** @var string */
+	private $value;
+
 	/** @var IFactory */
 	private $l10nFactory;
 
 	/** @var IUrlGenerator */
 	private $urlGenerator;
-
-	/** @var string */
-	private $value;
 
 	/**
 	 * Action constructor
@@ -61,12 +61,16 @@ class EmailAction implements IProfileAction {
 		return $this->l10nFactory->get('core')->t('Mail %s', [$this->value]);
 	}
 
+	public function getLabel(): string {
+		return $this->l10nFactory->get('core')->t('Mail');
+	}
+
 	public function getPriority(): int {
 		return 20;
 	}
 
 	public function getIcon(): string {
-		return 'icon-mail';
+		return $this->urlGenerator->getAbsoluteURL($this->urlGenerator->imagePath('core', 'actions/mail.svg'));
 	}
 
 	public function getTarget(): string {

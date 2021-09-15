@@ -28,11 +28,11 @@
 				<div class="profile__header__container__placeholder" />
 				<h2 class="profile__header__container__displayname">
 					{{ displayName }}
-					<button v-if="isCurrentUser"
+					<a v-if="isCurrentUser"
 						class="primary profile__header__container__button"
-						@click="openSettings">
+						:href="settingsUrl">
 						{{ t('core', 'Edit profile') }}
-					</button>
+					</a>
 				</h2>
 				<div v-if="status.icon || status.message"
 					class="profile__header__container__status"
@@ -55,23 +55,33 @@
 					@click.native.prevent.stop="openStatusModal" />
 
 				<div class="user-actions">
+					<!-- When a tel: URL is opened with target="_blank", a blank new tab is opened which is inconsistent with the handling of other URLs so we set target="_self" for phone -->
 					<PrimaryActionButton v-if="primaryAction"
 						class="user-actions__primary"
 						:href="primaryAction.target"
-						:icon="primaryAction.icon">
-						{{ primaryAction.title }}
+						:icon="primaryAction.icon"
+						:label="primaryAction.title"
+						:target="primaryAction.name === 'phone' ? '_self' :'_blank'">
+						{{ primaryAction.label }}
 					</PrimaryActionButton>
 					<div class="user-actions__other">
+						<!-- TODO fix icon rendering in nextcloud-vue, no icon is displayed on the action when not in the dropdown menu -->
 						<Actions v-for="action in allActions.slice(1, 4)"
 							:key="action.icon"
 							:default-icon="action.icon"
-							:menu-title="action.title">
+							style="
+								background-position: 14px center;
+								background-size: 16px;
+								background-repeat: no-repeat;"
+							:style="{
+								backgroundImage: `url(${action.icon})`,
+								...(colorMainBackground === '#181818' && { filter: 'invert(1)' })
+							}">
 							<ActionLink
 								:close-after-click="true"
 								:icon="action.icon"
 								:href="action.target"
-								:target="action.name === 'phone' ? '_self' :'_blank'"
-								:title="action.title">
+								:target="action.name === 'phone' ? '_self' :'_blank'">
 								{{ action.title }}
 							</ActionLink>
 						</Actions>
@@ -83,6 +93,7 @@
 									:close-after-click="true"
 									:href="action.target"
 									:target="action.name === 'phone' ? '_self' :'_blank'"
+									:class="{ 'icon-invert': colorMainBackground === '#181818' }"
 									:icon="action.icon">
 									{{ action.title }}
 								</ActionLink>
@@ -108,11 +119,11 @@
 					</div>
 				</div>
 				<template v-if="headline || biography">
-					<div class="profile__blocks-headline">
-						<h3>{{ headline || t('core', 'Your headline will appear here') }}</h3>
+					<div v-if="headline" class="profile__blocks-headline">
+						<h3>{{ headline }}</h3>
 					</div>
-					<div class="profile__blocks-biography">
-						<p>{{ biography || t('core', 'Your biography will appear here') }}</p>
+					<div v-if="biography" class="profile__blocks-biography">
+						<p>{{ biography }}</p>
 					</div>
 				</template>
 				<template v-else>
@@ -120,7 +131,7 @@
 						<AccountIcon
 							decorative
 							title=""
-							fill-color="#4D4D4D"
+							fill-color="var(--color-text-maxcontrast)"
 							:size="60" />
 						<h3>{{ displayName }} {{ t('core', 'hasn\'t added any info yet') }}</h3>
 						<p>Headline and biography will show up here</p>
@@ -149,7 +160,7 @@ import { showError } from '@nextcloud/dialogs'
 
 import PrimaryActionButton from '../components/Profile/PrimaryActionButton'
 
-const { actionParameters, userId, biography, company, headline, jobTitle, displayName, address } = loadState('core', 'profileParameters', {})
+const { actionParameters, userId, biography, company, headline, jobTitle, displayName, address, isAvatarDisplayed } = loadState('core', 'profileParameters', {})
 const status = loadState('core', 'status', {})
 
 // const actionParameters = []
@@ -206,6 +217,15 @@ export default {
 			}
 			return null
 		},
+
+		settingsUrl() {
+			return generateUrl('/settings/user')
+		},
+
+		colorMainBackground() {
+			// For some reason the returned string has prepended whitespace
+			return getComputedStyle(document.body).getPropertyValue('--color-main-background').trim()
+		},
 	},
 
 	mounted() {
@@ -229,10 +249,6 @@ export default {
 				showError(t('core', 'Error opening the user status modal, try hard refreshing the page'))
 			}
 		},
-
-		openSettings() {
-			location.href = generateUrl('/settings/user')
-		},
 	},
 }
 </script>
@@ -246,12 +262,6 @@ export default {
 
 #content {
 	padding-top: 0px;
-}
-
-// Add twitter icon
-.icon-twitter {
-	background-image: url("data:image/svg+xml,%3Csvg width='32' height='32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M21.61 4.62h.16c1.77 0 3.37.75 4.5 1.94 1.4-.27 2.71-.79 3.9-1.5a6.17 6.17 0 01-2.7 3.41C28.7 8.32 29.9 8 31 7.5a12.47 12.47 0 01-3.07 3.19l.02.8c0 8.13-6.2 17.51-17.52 17.51-3.47 0-6.7-1.02-9.43-2.77a12.46 12.46 0 009.11-2.54 6.16 6.16 0 01-5.75-4.28 6.1 6.1 0 002.78-.1 6.16 6.16 0 01-4.93-6.04v-.08c.83.46 1.78.74 2.78.77a6.15 6.15 0 01-1.9-8.22 17.48 17.48 0 0012.69 6.44 6.16 6.16 0 015.83-7.56z'/%3E%3C/svg%3E");
-	background-size: 16px;
 }
 </style>
 
@@ -305,6 +315,18 @@ $content-max-width: 640px;
 				box-shadow: 0 0 0 1px var(--color-primary-text);
 				margin-left: 12px;
 				margin-top: 8px;
+				background-color: var(--color-primary-element);
+				color: var(--color-primary-text);
+				border-radius: var(--border-radius-pill);
+				font-weight: bold;
+				padding: 6px 16px;
+				font-size: 13px;
+				height: 34px;
+				line-height: 22px;
+
+				&:hover {
+					background-color: var(--color-primary-element-light);
+				}
 			}
 
 			&__status {
@@ -316,7 +338,7 @@ $content-max-width: 640px;
 
 				&:hover {
 					background-color: var(--color-main-background);
-					color: var(--color-primary);
+					color: var(--color-main-text);
 					border-radius: var(--border-radius-pill);
 					font-weight: bold;
 					box-shadow: 0 3px 6px var(--color-box-shadow);
@@ -379,6 +401,10 @@ $content-max-width: 640px;
 		display: grid;
 		gap: 16px 0;
 		width: $content-max-width;
+
+		p, h3 {
+			overflow-wrap: anywhere;
+		}
 
 		&-details {
 			display: flex;
@@ -451,6 +477,12 @@ $content-max-width: 640px;
 		display: flex;
 		justify-content: center;
 		gap: 0 5px;
+	}
+}
+
+.icon-invert {
+	&::v-deep .action-link__icon {
+		filter: invert(1);
 	}
 }
 </style>

@@ -54,6 +54,7 @@ use OCP\Accounts\IAccountProperty;
 use OCP\AppFramework\Services\IInitialState;
 
 class PersonalInfo implements ISettings {
+	use \OC\Accounts\TAccountsHelper;
 
 	/** @var IConfig */
 	private $config;
@@ -158,7 +159,7 @@ class PersonalInfo implements ISettings {
 			'displayNameMap' => $this->getDisplayNameMap($account),
 			'emailMap' => $this->getEmailMap($account),
 			'languageMap' => $this->getLanguageMap($user),
-			'profileEnabled' => $this->getProfileEnabled($account),
+			'profileEnabled' => $this->isProfileEnabled($account),
 			'companyMap' => $this->getCompanyMap($account),
 			'jobTitleMap' => $this->getJobTitleMap($account),
 			'headlineMap' => $this->getHeadlineMap($account),
@@ -307,7 +308,7 @@ class PersonalInfo implements ISettings {
 	 * returns the primary email and additional emails in an
 	 * associative array
 	 */
-	private function getEmails(IAccount $account): array {
+	private function getEmailMap(IAccount $account): array {
 		$systemEmail = [
 			'value' => $account->getProperty(IAccountManager::PROPERTY_EMAIL)->getValue(),
 			'scope' => $account->getProperty(IAccountManager::PROPERTY_EMAIL)->getScope(),
@@ -433,16 +434,5 @@ class PersonalInfo implements ISettings {
 			$messageParameters[$property . 'Message'] = $message;
 		}
 		return $messageParameters;
-	}
-
-	/**
-	 * returns the profile enabled state
-	 */
-	private function getProfileEnabled(IAccount $account): bool {
-		return filter_var(
-			$account->getProperty(IAccountManager::PROPERTY_PROFILE_ENABLED)->getValue(),
-			FILTER_VALIDATE_BOOLEAN,
-			FILTER_NULL_ON_FAILURE,
-		);
 	}
 }

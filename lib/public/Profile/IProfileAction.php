@@ -39,7 +39,7 @@ interface IProfileAction {
 
 	/**
 	 * returns the translated title as it should be displayed,
-	 * e.g. 'Email john@domain.com'. Use the L10N service to translate it.
+	 * e.g. 'Mail john@domain.com'. Use the L10N service to translate it.
 	 *
 	 * @return string
 	 * @since 23
@@ -47,17 +47,28 @@ interface IProfileAction {
 	public function getTitle(): string;
 
 	/**
-	 * @return int whether the action should be rather on the top or bottom of
-	 * the list. The actions are arranged in ascending order of
-	 * the priority values. It is required to return a value between 0 and 99.
+	 * returns the translated label as it should be displayed,
+	 * e.g. 'Mail'. Use the L10N service to translate it.
 	 *
-	 * E.g.: 70
+	 * @return string
+	 * @since 23
+	 */
+	public function getLabel(): string;
+
+	/**
+	 * returns the priority as an integer between 0 and 99.
+	 *
+	 * The actions are arranged in ascending order.
+	 *
+	 * e.g. 60
+	 *
+	 * @return int
 	 * @since 23
 	 */
 	public function getPriority(): int;
 
 	/**
-	 * returns the 16*16 icon class describing the action.
+	 * returns the 16*16 SVG icon URL
 	 *
 	 * @returns string
 	 * @since 23
@@ -75,7 +86,8 @@ interface IProfileAction {
 
 	/**
 	 * set the action value
-	 * e.g. `random@example.org` for email and the userId for talk
+	 * e.g. `john@domain.com` for email
+	 * or the userId for talk.
 	 *
 	 * @return string
 	 * @since 23

@@ -30,14 +30,14 @@ use OCP\Profile\IProfileAction;
 
 class PhoneAction implements IProfileAction {
 
+	/** @var string */
+	private $value;
+
 	/** @var IFactory */
 	private $l10nFactory;
 
 	/** @var IUrlGenerator */
 	private $urlGenerator;
-
-	/** @var string */
-	private $value;
 
 	/**
 	 * Action constructor
@@ -61,12 +61,16 @@ class PhoneAction implements IProfileAction {
 		return $this->l10nFactory->get('core')->t('Call %s', [$this->value]);
 	}
 
+	public function getLabel(): string {
+		return $this->l10nFactory->get('core')->t('Call phone number');
+	}
+
 	public function getPriority(): int {
 		return 30;
 	}
 
 	public function getIcon(): string {
-		return 'icon-phone';
+		return $this->urlGenerator->getAbsoluteURL($this->urlGenerator->imagePath('core', 'actions/phone.svg'));
 	}
 
 	public function getTarget(): string {

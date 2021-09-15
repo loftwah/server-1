@@ -22,22 +22,36 @@
 
 <template>
 	<a
+		v-tooltip.auto="label"
 		class="profile__primary-action-button"
 		:class="{ 'disabled': disabled }"
 		:href="href"
+		:target="target"
+		rel="noopener noreferrer nofollow"
 		v-on="$listeners">
-		<span
+		<img
 			class="icon"
-			:class="[icon, { 'icon-white': colorPrimaryText === '#ffffff' }]" />
+			:class="[icon, { 'icon-invert': colorPrimaryText === '#ffffff' }]"
+			:src="icon">
 		<slot />
 	</a>
 </template>
 
 <script>
+import Tooltip from '@nextcloud/vue/dist/Directives/Tooltip'
+
 export default {
 	name: 'PrimaryActionButton',
 
+	directives: {
+		tooltip: Tooltip,
+	},
+
 	props: {
+		disabled: {
+			type: Boolean,
+			default: false,
+		},
 		href: {
 			type: String,
 			required: true,
@@ -46,9 +60,14 @@ export default {
 			type: String,
 			required: true,
 		},
-		disabled: {
-			type: Boolean,
-			default: false,
+		label: {
+			type: String,
+			required: true,
+		},
+		target: {
+			type: String,
+			required: true,
+			validator: (value) => ['_self', '_blank', '_parent', '_top'].includes(value),
 		},
 	},
 
@@ -63,6 +82,7 @@ export default {
 
 <style lang="scss" scoped>
 	.profile__primary-action-button {
+		font-weight: bold;
 		width: 220px;
 		height: 44px;
 		padding: 0 16px;
@@ -71,6 +91,9 @@ export default {
 		border-radius: var(--border-radius-pill);
 		color: var(--color-primary-text);
 		background-color: var(--color-primary-element);
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
 
 		.icon {
 			display: inline-block;
@@ -78,8 +101,7 @@ export default {
 			margin-bottom: 2px;
 			margin-right: 4px;
 
-			// TODO add this to global icon-vars
-			&.icon-talk.icon-white {
+			&.icon-invert {
 				filter: invert(1);
 			}
 		}

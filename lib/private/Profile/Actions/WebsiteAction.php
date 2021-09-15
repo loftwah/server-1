@@ -31,14 +31,14 @@ use OCP\Profile\IProfileAction;
 
 class WebsiteAction implements IProfileAction {
 
+	/** @var string */
+	private $value;
+
 	/** @var IFactory */
 	private $l10nFactory;
 
 	/** @var IUrlGenerator */
 	private $urlGenerator;
-
-	/** @var string */
-	private $value;
 
 	/**
 	 * Action constructor
@@ -62,12 +62,16 @@ class WebsiteAction implements IProfileAction {
 		return $this->l10nFactory->get('core')->t('Visit %s', [$this->value]);
 	}
 
+	public function getLabel(): string {
+		return $this->l10nFactory->get('core')->t('Visit website');
+	}
+
 	public function getPriority(): int {
 		return 40;
 	}
 
 	public function getIcon(): string {
-		return 'icon-timezone';
+		return $this->urlGenerator->getAbsoluteURL($this->urlGenerator->imagePath('core', 'actions/timezone.svg'));
 	}
 
 	public function getTarget(): string {

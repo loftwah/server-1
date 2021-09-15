@@ -172,6 +172,10 @@ const ContactsListItemView = View.extend({
 		// Show placeholder if no avatar is available (avatar is rendered as img, not div)
 		this.$('div.avatar').imageplaceholder(this._model.get('fullName'))
 
+		// Show tooltip for profile link
+		this.$('.profile-link--avatar').tooltip({ placement: 'left' })
+		this.$('.profile-link--full-name').tooltip({ placement: 'left' })
+
 		// Show tooltip for top action
 		this.$('.top-action').tooltip({ placement: 'left' })
 		// Show tooltip for second action

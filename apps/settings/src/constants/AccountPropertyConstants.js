@@ -94,8 +94,8 @@ export const ACCOUNT_SETTING_PROPERTY_READABLE_ENUM = Object.freeze({
 
 /** Enum of scopes */
 export const SCOPE_ENUM = Object.freeze({
-	LOCAL: 'v2-local',
 	PRIVATE: 'v2-private',
+	LOCAL: 'v2-local',
 	FEDERATED: 'v2-federated',
 	PUBLISHED: 'v2-published',
 })
@@ -126,17 +126,17 @@ export const SCOPE_SUFFIX = 'Scope'
  * *Used for federation control*
  */
 export const SCOPE_PROPERTY_ENUM = Object.freeze({
-	[SCOPE_ENUM.LOCAL]: {
-		name: SCOPE_ENUM.LOCAL,
-		displayName: t('settings', 'Local'),
-		tooltip: t('settings', 'Only visible to people on this instance and guests'),
-		iconClass: 'icon-password',
-	},
 	[SCOPE_ENUM.PRIVATE]: {
 		name: SCOPE_ENUM.PRIVATE,
 		displayName: t('settings', 'Private'),
 		tooltip: t('settings', 'Only visible to people matched via phone number integration through Talk on mobile'),
 		iconClass: 'icon-phone',
+	},
+	[SCOPE_ENUM.LOCAL]: {
+		name: SCOPE_ENUM.LOCAL,
+		displayName: t('settings', 'Local'),
+		tooltip: t('settings', 'Only visible to people on this instance and guests'),
+		iconClass: 'icon-password',
 	},
 	[SCOPE_ENUM.FEDERATED]: {
 		name: SCOPE_ENUM.FEDERATED,

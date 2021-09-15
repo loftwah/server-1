@@ -28,42 +28,26 @@ declare(strict_types=1);
 namespace OC\Core\Controller;
 
 use \OCP\AppFramework\Controller;
-use function Safe\substr;
+use OC\KnownUser\KnownUserService;
 use OC\Profile\Actions\EmailAction;
 use OC\Profile\Actions\PhoneAction;
 use OC\Profile\Actions\TalkAction;
 use OC\Profile\Actions\TwitterAction;
 use OC\Profile\Actions\WebsiteAction;
-use OCA\Federation\TrustedServers;
 use OCP\Accounts\IAccount;
 use OCP\Accounts\IAccountManager;
 use OCP\Accounts\IAccountProperty;
 use OCP\App\IAppManager;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Services\IInitialState;
-// use OCP\IL10N;
 use OCP\IRequest;
-use OCP\IURLGenerator;
 use OCP\IUserManager;
 use OCP\IUserSession;
 use OCP\Profile\IActionManager;
 use OCP\Profile\IProfileAction;
 use OCP\UserStatus\IManager as IUserStatusManager;
-use Psr\Container\ContainerInterface;
 
 class ProfileController extends Controller {
-
-	/** @var IURLGenerator */
-	private $urlGenerator;
-
-	/** @var TrustedServers */
-	private $trustedServers;
-
-	/** @var IL10N */
-	// private $l10n;
-
-	/** @var ContainerInterface */
-	// private $containerInterface;
 
 	/** @var IUserSession */
 	private $userSession;
@@ -86,33 +70,30 @@ class ProfileController extends Controller {
 	/** @var IActionManager */
 	private $actionManager;
 
+	/** @var KnownUserService */
+	private $knownUserService;
+
 	public function __construct(
 		$appName,
 		IRequest $request,
-		// IL10N $l10n,
-		ContainerInterface $containerInterface,
-		IURLGenerator $urlGenerator,
-		TrustedServers $trustedServers,
-		IUserSession $userSession,
-		IUserManager $userManager,
 		IAccountManager $accountManager,
-		IInitialState $initialStateService,
+		IActionManager $actionManager,
 		IAppManager $appManager,
+		IInitialState $initialStateService,
+		IUserManager $userManager,
+		IUserSession $userSession,
 		IUserStatusManager $userStatusManager,
-		IActionManager $actionManager
+		KnownUserService $knownUserService
 	) {
 		parent::__construct($appName, $request);
-		// $this->l10n = $l10n;
-		$this->containerInterface = $containerInterface;
-		$this->urlGenerator = $urlGenerator;
-		$this->trustedServers = $trustedServers;
-		$this->userSession = $userSession;
-		$this->userManager = $userManager;
 		$this->accountManager = $accountManager;
-		$this->initialStateService = $initialStateService;
-		$this->appManager = $appManager;
-		$this->userStatusManager = $userStatusManager;
 		$this->actionManager = $actionManager;
+		$this->appManager = $appManager;
+		$this->initialStateService = $initialStateService;
+		$this->userManager = $userManager;
+		$this->userSession = $userSession;
+		$this->userStatusManager = $userStatusManager;
+		$this->knownUserService = $knownUserService;
 	}
 
 	public const PROFILE_DISPLAY_PROPERTIES = [
@@ -124,6 +105,9 @@ class ProfileController extends Controller {
 		IAccountManager::PROPERTY_BIOGRAPHY,
 	];
 
+	/**
+	 * Map of account properties to camelCase variants
+	 */
 	public const PROFILE_DISPLAY_PROPERTY_JSON_MAP = [
 		IAccountManager::PROPERTY_DISPLAYNAME => 'displayName',
 		IAccountManager::PROPERTY_ADDRESS => 'address',
@@ -141,15 +125,11 @@ class ProfileController extends Controller {
 	];
 
 	/**
-	 * Useful annotations
-	 * @NoAdminRequired
-	 */
-
-	/**
-	 * FIXME Public page annotation blocks the user session somehow
 	 * @PublicPage
 	 * @UseSession
 	 * @NoCSRFRequired
+	 * @NoAdminRequired
+	 * @NoSubAdminRequired
 	 */
 	public function index(string $userId): TemplateResponse {
 		if (!$this->userManager->userExists($userId)) {
@@ -169,7 +149,7 @@ class ProfileController extends Controller {
 			FILTER_NULL_ON_FAILURE,
 		);
 
-		if (empty($profileEnabled)) {
+		if (!$profileEnabled) {
 			return new TemplateResponse(
 				'core',
 				'404-page',
@@ -202,14 +182,9 @@ class ProfileController extends Controller {
 	 * associative array
 	 */
 	private function getProfileParams(IAccount $account): array {
-		// TODO remove as profiles aren't visible by federated users, and display as if they were a guest
+		$visitingUser = $this->userSession->getUser();
+		$user = $account->getUser();
 		$isLoggedIn = $this->userSession->isLoggedIn();
-		$serverBaseUrl = $this->urlGenerator->getBaseUrl();
-		$reqProtocol = $this->request->getServerProtocol();
-		$reqHost = $this->request->getInsecureServerHost();
-		$reqUri = $this->request->getRequestUri();
-		$reqBaseUrl = substr("$reqProtocol://$reqHost$reqUri", 0, strlen($serverBaseUrl));
-		$isSameServerInstance = $serverBaseUrl === $reqBaseUrl;
 
 		$additionalEmails = array_map(
 			function (IAccountProperty $property) {
@@ -222,29 +197,29 @@ class ProfileController extends Controller {
 			'userId' => $account->getUser()->getUID(),
 		];
 
-		// for scope, if:
-		// 1) Private   - visible to users on same server instance
-		// 2) Local     - visible to users and public link visitors on same server instance
-		// 3) Federated - visible to users and public link visitors on same server instance and trusted servers
-		// 4) Published - same as Federated but also published to public lookup server
+		// Only show property info to permitted visiting users
+		// 1) Private   - hidden from public access and from unknown users
+		// 2) Local     - hidden from nobody
+		// 3) Federated - hidden from nobody
+		// 4) Published - hidden from nobody
 		foreach (self::PROFILE_DISPLAY_PROPERTIES as $property) {
 			$scope = $account->getProperty($property)->getScope();
+
 			switch ($scope) {
 				case IAccountManager::SCOPE_PRIVATE:
 					$profileParameters[self::PROFILE_DISPLAY_PROPERTY_JSON_MAP[$property]] =
-						($isLoggedIn && $isSameServerInstance) ? $account->getProperty($property)->getValue() : null;
+						($isLoggedIn && $visitingUser !== null && $this->knownUserService->isKnownToUser($user->getUID(), $visitingUser->getUID()))
+						? $account->getProperty($property)->getValue()
+						: null;
 					break;
 				case IAccountManager::SCOPE_LOCAL:
-					$profileParameters[self::PROFILE_DISPLAY_PROPERTY_JSON_MAP[$property]] =
-						$isSameServerInstance ? $account->getProperty($property)->getValue() : null;
+					$profileParameters[self::PROFILE_DISPLAY_PROPERTY_JSON_MAP[$property]] = $account->getProperty($property)->getValue();
 					break;
 				case IAccountManager::SCOPE_FEDERATED:
-					$profileParameters[self::PROFILE_DISPLAY_PROPERTY_JSON_MAP[$property]] =
-						$this->trustedServers->isTrustedServer($serverBaseUrl) ? $account->getProperty($property)->getValue() : null;
+					$profileParameters[self::PROFILE_DISPLAY_PROPERTY_JSON_MAP[$property]] = $account->getProperty($property)->getValue();
 					break;
 				case IAccountManager::SCOPE_PUBLISHED:
-					$profileParameters[self::PROFILE_DISPLAY_PROPERTY_JSON_MAP[$property]] =
-						$this->trustedServers->isTrustedServer($serverBaseUrl) ? $account->getProperty($property)->getValue() : null;
+					$profileParameters[self::PROFILE_DISPLAY_PROPERTY_JSON_MAP[$property]] = $account->getProperty($property)->getValue();
 					break;
 				default:
 					$profileParameters[self::PROFILE_DISPLAY_PROPERTY_JSON_MAP[$property]] = null;
@@ -253,45 +228,35 @@ class ProfileController extends Controller {
 		}
 
 		$avatarScope = $account->getProperty(IAccountManager::PROPERTY_AVATAR)->getScope();
+
 		switch ($avatarScope) {
 			case IAccountManager::SCOPE_PRIVATE:
-				$profileParameters['isAvatarDisplayed'] = ($isLoggedIn && $isSameServerInstance);
+				$profileParameters['isAvatarDisplayed'] = ($isLoggedIn && $visitingUser !== null && $this->knownUserService->isKnownToUser($user->getUID(), $visitingUser->getUID()));
 				break;
 			case IAccountManager::SCOPE_LOCAL:
-				$profileParameters['isAvatarDisplayed'] = $isSameServerInstance;
+				$profileParameters['isAvatarDisplayed'] = true;
 				break;
 			case IAccountManager::SCOPE_FEDERATED:
-				$profileParameters['isAvatarDisplayed'] = $this->trustedServers->isTrustedServer($serverBaseUrl);
+				$profileParameters['isAvatarDisplayed'] = true;
 				break;
 			case IAccountManager::SCOPE_PUBLISHED:
-				$profileParameters['isAvatarDisplayed'] = $this->trustedServers->isTrustedServer($serverBaseUrl);
+				$profileParameters['isAvatarDisplayed'] = true;
 				break;
 			default:
 				$profileParameters['isAvatarDisplayed'] = false;
 				break;
 		}
 
-		$actionParameters = $this->initActions($account);
-		$profileParameters = [
-			'userId' => $account->getUser()->getUID(),
-			'displayName' => $account->getProperty(IAccountManager::PROPERTY_DISPLAYNAME)->getValue(),
-			'address' => $account->getProperty(IAccountManager::PROPERTY_ADDRESS)->getValue(),
-			'company' => $account->getProperty(IAccountManager::PROPERTY_COMPANY)->getValue(),
-			'jobTitle' => $account->getProperty(IAccountManager::PROPERTY_JOB_TITLE)->getValue(),
-			'headline' => $account->getProperty(IAccountManager::PROPERTY_HEADLINE)->getValue(),
-			'biography' => $account->getProperty(IAccountManager::PROPERTY_BIOGRAPHY)->getValue(),
-			// Ordered by precedence, order is preserved in PHP and modern JavaScript
-			'actionParameters' => $actionParameters,
-		];
+		$profileParameters['actionParameters'] = $this->initActions($account);
 
 		return $profileParameters;
 	}
 
-	// TODO test out new implementation
 	protected function initActions(IAccount $account) {
 		$isLoggedIn = $this->userSession->isLoggedIn();
 		$userId = $account->getUser()->getUID();
 		$talkEnabled = $this->appManager->isEnabledForUser('spreed', $account->getUser());
+		// $talkEnabled = false;
 
 		if ($talkEnabled) {
 			$this->actionManager->registerAction(TalkAction::class, $userId);
@@ -301,10 +266,10 @@ class ProfileController extends Controller {
 			$scope = $account->getProperty($property)->getScope();
 			$value = $account->getProperty($property)->getValue();
 
-			if ($scope === IAccountManager::SCOPE_PRIVATE && !$isLoggedIn) {
-				return;
-			}
 			// The other less strict scopes all allow public link access
+			if ($scope === IAccountManager::SCOPE_PRIVATE && !$isLoggedIn) {
+				continue;
+			}
 
 			if (!empty($value)) {
 				switch ($property) {
@@ -332,6 +297,7 @@ class ProfileController extends Controller {
 					'name' => $action->getName(),
 					'icon' => $action->getIcon(),
 					'title' => $action->getTitle(),
+					'label' => $action->getLabel(),
 					'target' => $action->getTarget(),
 				];
 			},
