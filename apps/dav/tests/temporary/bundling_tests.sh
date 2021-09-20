@@ -58,13 +58,6 @@ cat "$testFile2" >> $upload
 #END boundary
 echo -en "\r\n--$boundary--\r\n" >> $upload
 
-#POST
-#curl -X DELETE -u $user:$pass --cookie "XDEBUG_SESSION=MROW4A;path=/;" "http://$server/remote.php/webdav/config.cfg"
-
 curl -X POST -k -H "Content-Type: multipart/related; boundary=$boundary" --cookie "XDEBUG_SESSION=MROW4A;path=/;" \
     --data-binary "@$upload" \
     "https://$user:$pass@$server/remote.php/dav/files/bundle"
-
-
-
-
