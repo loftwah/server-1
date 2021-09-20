@@ -182,16 +182,21 @@ class MultipartContentsParser {
     //     return "\r\n--$boundary\r\n";
     // }
 
+    public function checkBoundary(string $boundary, string $line) {
+        if ($line !== $boundary) {
+            throw new Exception("Invalid boundary, is '$line', should be '$this->boundary'.");
+        }
+
+        return true;
+    }
+
     /**
      * Return the next part of the request.
      *
      * @throws Exception
      */
     public function readNextPart(int $length = 0) {
-        $line = fread($this->stream, strlen($this->boundary));
-        if ($line !== $this->boundary) {
-            throw new Exception("Invalid boundary.");
-        }
+        $this->checkBoundary($this->boundary, fread($this->stream, strlen($this->boundary)));
 
         $headers = $this->readPartHeaders();
 
@@ -200,7 +205,7 @@ class MultipartContentsParser {
         }
 
         if ($length === 0) {
-            throw new Exception("Invalid length.");
+                throw new Exception("Part cannot be of length 0.");
         }
 
         $content = $this->readPartContent2($length);
@@ -214,10 +219,7 @@ class MultipartContentsParser {
      * @throws Exception
      */
     public function readNextStream() {
-        $line = fread($this->stream, strlen($this->boundary));
-        if ($line !== $this->boundary) {
-            throw new Exception("Invalid boundary.");
-        }
+        $this->checkBoundary($this->boundary, fread($this->stream, strlen($this->boundary)));
 
         $headers = $this->readPartHeaders();
 

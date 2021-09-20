@@ -151,7 +151,7 @@ class BundlingPlugin extends ServerPlugin {
 				}
 
 				if (isset($file[$fileMetadata['oc-id']])) {
-					throw new BadRequest("Content-ID do not match oc-id. Check the order of your metadata.");
+					throw new BadRequest("Content-ID appear twice. Check the order of your metadata.");
 				}
 
 				if ((int)$fileMetadata['oc-total-length'] !== strlen($content)) {
@@ -160,7 +160,16 @@ class BundlingPlugin extends ServerPlugin {
 
 				$node = $this->userFolder->newFile($fileMetadata['oc-path'], $content);
 				$writtenFiles[$fileMetadata['oc-id']] = $node->getSize();
+
+				// TODO - check md5 hash
+				// $context = hash_init('md5');
+				// hash_update_stream($context, $stream);
+				// echo hash_final($context);
+				if ($fileMetadata['oc-md5'] !== hash_final($context)) {
+
+				}
 			} catch (\Exception $e) {
+				throw $e;
 				$this->logger->error($e->getMessage(), ['path' => $fileMetadata['oc-path']]);
 			}
 		}
