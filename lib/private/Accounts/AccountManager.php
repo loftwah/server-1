@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @copyright Copyright (c) 2016, ownCloud, Inc.
  * @copyright Copyright (c) 2016, Björn Schießle
@@ -30,6 +31,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  *
  */
+
 namespace OC\Accounts;
 
 use Exception;
@@ -384,7 +386,8 @@ class AccountManager implements IAccountManager {
 		}
 		$oldMail = isset($oldData[self::PROPERTY_EMAIL]) ? $oldData[self::PROPERTY_EMAIL]['value']['value'] : '';
 		if ($oldMail !== $property->getValue()) {
-			$this->jobList->add(VerifyUserData::class,
+			$this->jobList->add(
+				VerifyUserData::class,
 				[
 					'verificationCode' => '',
 					'data' => $property->getValue(),
@@ -416,12 +419,14 @@ class AccountManager implements IAccountManager {
 		$key = $this->crypto->encrypt($email);
 		$token = $this->verificationToken->create($user, 'verifyMail' . $ref, $email);
 
-		$link = $this->urlGenerator->linkToRouteAbsolute('provisioning_api.Verification.verifyMail',
+		$link = $this->urlGenerator->linkToRouteAbsolute(
+			'provisioning_api.Verification.verifyMail',
 			[
 				'userId' => $user->getUID(),
 				'token' => $token,
 				'key' => $key
-			]);
+			]
+		);
 
 		$emailTemplate = $this->mailer->createEMailTemplate('core.EmailVerification', [
 			'link' => $link,
@@ -503,7 +508,7 @@ class AccountManager implements IAccountManager {
 					|| $property->getValue() !== $oldData[$propertyName]['value'])
 				&& ($property->getVerified() !== self::NOT_VERIFIED
 					|| $wasVerified)
-				) {
+			) {
 				$property->setVerified(self::NOT_VERIFIED);
 			}
 		}
@@ -681,13 +686,13 @@ class AccountManager implements IAccountManager {
 			],
 
 			[
-				'name' => self::PROPERTY_COMPANY,
+				'name' => self::PROPERTY_ORGANISATION,
 				'value' => '',
 				'scope' => self::SCOPE_LOCAL,
 			],
 
 			[
-				'name' => self::PROPERTY_JOB_TITLE,
+				'name' => self::PROPERTY_ROLE,
 				'value' => '',
 				'scope' => self::SCOPE_LOCAL,
 			],

@@ -231,10 +231,10 @@ script('settings', [
 			</form>
 		</div>
 		<div class="personal-settings-setting-box">
-			<div id="vue-company-section"></div>
+			<div id="vue-organisation-section"></div>
 		</div>
 		<div class="personal-settings-setting-box">
-			<div id="vue-jobtitle-section"></div>
+			<div id="vue-role-section"></div>
 		</div>
 		<div class="personal-settings-setting-box">
 			<div id="vue-headline-section"></div>

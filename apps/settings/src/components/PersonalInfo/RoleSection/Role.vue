@@ -21,18 +21,18 @@
 -->
 
 <template>
-	<div class="jobtitle">
+	<div class="role">
 		<input
-			id="jobtitle"
+			id="role"
 			type="text"
-			:placeholder="t('settings', 'Your job title')"
-			:value="jobTitle"
+			:placeholder="t('settings', 'Your role')"
+			:value="role"
 			autocapitalize="none"
 			autocomplete="on"
 			autocorrect="off"
-			@input="onJobTitleChange">
+			@input="onRoleChange">
 
-		<div class="jobtitle__actions-container">
+		<div class="role__actions-container">
 			<transition name="fade">
 				<span v-if="showCheckmarkIcon" class="icon-checkmark" />
 				<span v-else-if="showErrorIcon" class="icon-error" />
@@ -50,10 +50,10 @@ import { ACCOUNT_PROPERTY_ENUM } from '../../../constants/AccountPropertyConstan
 import { savePrimaryAccountProperty } from '../../../service/PersonalInfo/PersonalInfoService'
 
 export default {
-	name: 'JobTitle',
+	name: 'Role',
 
 	props: {
-		jobTitle: {
+		role: {
 			type: String,
 			required: true,
 		},
@@ -65,7 +65,7 @@ export default {
 
 	data() {
 		return {
-			initialJobTitle: this.jobTitle,
+			initialRole: this.role,
 			localScope: this.scope,
 			showCheckmarkIcon: false,
 			showErrorIcon: false,
@@ -73,35 +73,35 @@ export default {
 	},
 
 	methods: {
-		onJobTitleChange(e) {
-			this.$emit('update:job-title', e.target.value)
-			this.debounceJobTitleChange(e.target.value.trim())
+		onRoleChange(e) {
+			this.$emit('update:role', e.target.value)
+			this.debounceRoleChange(e.target.value.trim())
 		},
 
-		debounceJobTitleChange: debounce(async function(jobTitle) {
-			await this.updatePrimaryJobTitle(jobTitle)
+		debounceRoleChange: debounce(async function(role) {
+			await this.updatePrimaryRole(role)
 		}, 500),
 
-		async updatePrimaryJobTitle(jobTitle) {
+		async updatePrimaryRole(role) {
 			try {
-				const responseData = await savePrimaryAccountProperty(ACCOUNT_PROPERTY_ENUM.JOB_TITLE, jobTitle)
+				const responseData = await savePrimaryAccountProperty(ACCOUNT_PROPERTY_ENUM.ROLE, role)
 				this.handleResponse({
-					jobTitle,
+					role,
 					status: responseData.ocs?.meta?.status,
 				})
 			} catch (e) {
 				this.handleResponse({
-					errorMessage: t('settings', 'Unable to update job title'),
+					errorMessage: t('settings', 'Unable to update role'),
 					error: e,
 				})
 			}
 		},
 
-		handleResponse({ jobTitle, status, errorMessage, error }) {
+		handleResponse({ role, status, errorMessage, error }) {
 			if (status === 'ok') {
 				// Ensure that local state reflects server state
-				this.initialJobTitle = jobTitle
-				emit('settings:job-title:updated', jobTitle)
+				this.initialRole = role
+				emit('settings:role:updated', role)
 				this.showCheckmarkIcon = true
 				setTimeout(() => { this.showCheckmarkIcon = false }, 2000)
 			} else {
@@ -120,7 +120,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.jobtitle {
+.role {
 	display: grid;
 	align-items: center;
 
@@ -138,7 +138,7 @@ export default {
 		cursor: text;
 	}
 
-	.jobtitle__actions-container {
+	.role__actions-container {
 		grid-area: 1 / 1;
 		justify-self: flex-end;
 		height: 30px;

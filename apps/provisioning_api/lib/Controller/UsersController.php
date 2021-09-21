@@ -611,8 +611,8 @@ class UsersController extends AUserData {
 		$permittedFields[] = IAccountManager::PROPERTY_ADDRESS;
 		$permittedFields[] = IAccountManager::PROPERTY_WEBSITE;
 		$permittedFields[] = IAccountManager::PROPERTY_TWITTER;
-		$permittedFields[] = IAccountManager::PROPERTY_COMPANY;
-		$permittedFields[] = IAccountManager::PROPERTY_JOB_TITLE;
+		$permittedFields[] = IAccountManager::PROPERTY_ORGANISATION;
+		$permittedFields[] = IAccountManager::PROPERTY_ROLE;
 		$permittedFields[] = IAccountManager::PROPERTY_HEADLINE;
 		$permittedFields[] = IAccountManager::PROPERTY_BIOGRAPHY;
 		$permittedFields[] = IAccountManager::PROPERTY_PROFILE_ENABLED;
@@ -772,8 +772,8 @@ class UsersController extends AUserData {
 			$permittedFields[] = IAccountManager::PROPERTY_ADDRESS;
 			$permittedFields[] = IAccountManager::PROPERTY_WEBSITE;
 			$permittedFields[] = IAccountManager::PROPERTY_TWITTER;
-			$permittedFields[] = IAccountManager::PROPERTY_COMPANY;
-			$permittedFields[] = IAccountManager::PROPERTY_JOB_TITLE;
+			$permittedFields[] = IAccountManager::PROPERTY_ORGANISATION;
+			$permittedFields[] = IAccountManager::PROPERTY_ROLE;
 			$permittedFields[] = IAccountManager::PROPERTY_HEADLINE;
 			$permittedFields[] = IAccountManager::PROPERTY_BIOGRAPHY;
 			$permittedFields[] = IAccountManager::PROPERTY_PROFILE_ENABLED;
@@ -781,8 +781,8 @@ class UsersController extends AUserData {
 			$permittedFields[] = IAccountManager::PROPERTY_ADDRESS . self::SCOPE_SUFFIX;
 			$permittedFields[] = IAccountManager::PROPERTY_WEBSITE . self::SCOPE_SUFFIX;
 			$permittedFields[] = IAccountManager::PROPERTY_TWITTER . self::SCOPE_SUFFIX;
-			$permittedFields[] = IAccountManager::PROPERTY_COMPANY . self::SCOPE_SUFFIX;
-			$permittedFields[] = IAccountManager::PROPERTY_JOB_TITLE . self::SCOPE_SUFFIX;
+			$permittedFields[] = IAccountManager::PROPERTY_ORGANISATION . self::SCOPE_SUFFIX;
+			$permittedFields[] = IAccountManager::PROPERTY_ROLE . self::SCOPE_SUFFIX;
 			$permittedFields[] = IAccountManager::PROPERTY_HEADLINE . self::SCOPE_SUFFIX;
 			$permittedFields[] = IAccountManager::PROPERTY_BIOGRAPHY . self::SCOPE_SUFFIX;
 
@@ -816,8 +816,8 @@ class UsersController extends AUserData {
 				$permittedFields[] = IAccountManager::PROPERTY_ADDRESS;
 				$permittedFields[] = IAccountManager::PROPERTY_WEBSITE;
 				$permittedFields[] = IAccountManager::PROPERTY_TWITTER;
-				$permittedFields[] = IAccountManager::PROPERTY_COMPANY;
-				$permittedFields[] = IAccountManager::PROPERTY_JOB_TITLE;
+				$permittedFields[] = IAccountManager::PROPERTY_ORGANISATION;
+				$permittedFields[] = IAccountManager::PROPERTY_ROLE;
 				$permittedFields[] = IAccountManager::PROPERTY_HEADLINE;
 				$permittedFields[] = IAccountManager::PROPERTY_BIOGRAPHY;
 				$permittedFields[] = IAccountManager::PROPERTY_PROFILE_ENABLED;
@@ -937,8 +937,8 @@ class UsersController extends AUserData {
 			case IAccountManager::PROPERTY_ADDRESS:
 			case IAccountManager::PROPERTY_WEBSITE:
 			case IAccountManager::PROPERTY_TWITTER:
-			case IAccountManager::PROPERTY_COMPANY:
-			case IAccountManager::PROPERTY_JOB_TITLE:
+			case IAccountManager::PROPERTY_ORGANISATION:
+			case IAccountManager::PROPERTY_ROLE:
 			case IAccountManager::PROPERTY_HEADLINE:
 			case IAccountManager::PROPERTY_BIOGRAPHY:
 				$userAccount = $this->accountManager->getAccount($targetUser);
@@ -982,8 +982,8 @@ class UsersController extends AUserData {
 			case IAccountManager::PROPERTY_ADDRESS . self::SCOPE_SUFFIX:
 			case IAccountManager::PROPERTY_WEBSITE . self::SCOPE_SUFFIX:
 			case IAccountManager::PROPERTY_TWITTER . self::SCOPE_SUFFIX:
-			case IAccountManager::PROPERTY_COMPANY . self::SCOPE_SUFFIX:
-			case IAccountManager::PROPERTY_JOB_TITLE . self::SCOPE_SUFFIX:
+			case IAccountManager::PROPERTY_ORGANISATION . self::SCOPE_SUFFIX:
+			case IAccountManager::PROPERTY_ROLE . self::SCOPE_SUFFIX:
 			case IAccountManager::PROPERTY_HEADLINE . self::SCOPE_SUFFIX:
 			case IAccountManager::PROPERTY_BIOGRAPHY . self::SCOPE_SUFFIX:
 			case IAccountManager::PROPERTY_AVATAR . self::SCOPE_SUFFIX:

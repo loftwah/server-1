@@ -24,6 +24,7 @@
 
 namespace OC\Profile\Actions;
 
+use function Safe\substr;
 use OCP\IURLGenerator;
 use OCP\L10N\IFactory;
 use OCP\Profile\IProfileAction;
@@ -75,7 +76,8 @@ class TwitterAction implements IProfileAction {
 	}
 
 	public function getTarget(): string {
-		return 'https://twitter.com/' . $this->value;
+		$username = $this->value[0] === '@' ? substr($this->value, 1) : $this->value;
+		return 'https://twitter.com/' . $username;
 	}
 
 	public function setValue(string $value): string {

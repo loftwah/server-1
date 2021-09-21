@@ -38,7 +38,7 @@
 			<span>{{ displayName }}</span>
 		</div>
 		<div class="preview-card__footer">
-			<span>{{ company }}</span>
+			<span>{{ organisation }}</span>
 		</div>
 	</a>
 </template>
@@ -57,7 +57,7 @@ export default {
 	},
 
 	props: {
-		company: {
+		organisation: {
 			type: String,
 			required: true,
 		},

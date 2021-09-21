@@ -31,8 +31,8 @@ import DisplayNameSection from './components/PersonalInfo/DisplayNameSection/Dis
 import EmailSection from './components/PersonalInfo/EmailSection/EmailSection'
 import LanguageSection from './components/PersonalInfo/LanguageSection/LanguageSection'
 import ProfileSection from './components/PersonalInfo/ProfileSection/ProfileSection'
-import CompanySection from './components/PersonalInfo/CompanySection/CompanySection'
-import JobTitleSection from './components/PersonalInfo/JobTitleSection/JobTitleSection'
+import OrganisationSection from './components/PersonalInfo/OrganisationSection/OrganisationSection'
+import RoleSection from './components/PersonalInfo/RoleSection/RoleSection'
 import HeadlineSection from './components/PersonalInfo/HeadlineSection/HeadlineSection'
 import BiographySection from './components/PersonalInfo/BiographySection/BiographySection'
 
@@ -51,8 +51,8 @@ const DisplayNameView = Vue.extend(DisplayNameSection)
 const EmailView = Vue.extend(EmailSection)
 const LanguageView = Vue.extend(LanguageSection)
 const ProfileView = Vue.extend(ProfileSection)
-const CompanyView = Vue.extend(CompanySection)
-const JobTitleView = Vue.extend(JobTitleSection)
+const OrganisationView = Vue.extend(OrganisationSection)
+const RoleView = Vue.extend(RoleSection)
 const HeadlineView = Vue.extend(HeadlineSection)
 const BiographyView = Vue.extend(BiographySection)
 
@@ -60,7 +60,7 @@ new DisplayNameView().$mount('#vue-displayname-section')
 new EmailView().$mount('#vue-email-section')
 new LanguageView().$mount('#vue-language-section')
 new ProfileView().$mount('#vue-profile-section')
-new CompanyView().$mount('#vue-company-section')
-new JobTitleView().$mount('#vue-jobtitle-section')
+new OrganisationView().$mount('#vue-organisation-section')
+new RoleView().$mount('#vue-role-section')
 new HeadlineView().$mount('#vue-headline-section')
 new BiographyView().$mount('#vue-biography-section')

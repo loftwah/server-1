@@ -24,37 +24,37 @@
 	<section>
 		<HeaderBar
 			:account-property="accountProperty"
-			label-for="company"
-			:scope.sync="primaryCompany.scope" />
+			label-for="organisation"
+			:scope.sync="primaryOrganisation.scope" />
 
-		<Company
-			:company.sync="primaryCompany.value"
-			:scope.sync="primaryCompany.scope" />
+		<Organisation
+			:organisation.sync="primaryOrganisation.value"
+			:scope.sync="primaryOrganisation.scope" />
 	</section>
 </template>
 
 <script>
 import { loadState } from '@nextcloud/initial-state'
 
-import Company from './Company'
+import Organisation from './Organisation'
 import HeaderBar from '../shared/HeaderBar'
 
 import { ACCOUNT_PROPERTY_READABLE_ENUM } from '../../../constants/AccountPropertyConstants'
 
-const { companyMap: { primaryCompany } } = loadState('settings', 'personalInfoParameters', {})
+const { organisationMap: { primaryOrganisation } } = loadState('settings', 'personalInfoParameters', {})
 
 export default {
-	name: 'CompanySection',
+	name: 'OrganisationSection',
 
 	components: {
-		Company,
+		Organisation,
 		HeaderBar,
 	},
 
 	data() {
 		return {
-			accountProperty: ACCOUNT_PROPERTY_READABLE_ENUM.COMPANY,
-			primaryCompany,
+			accountProperty: ACCOUNT_PROPERTY_READABLE_ENUM.ORGANISATION,
+			primaryOrganisation,
 		}
 	},
 }

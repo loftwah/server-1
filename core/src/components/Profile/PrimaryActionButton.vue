@@ -82,6 +82,7 @@ export default {
 
 <style lang="scss" scoped>
 	.profile__primary-action-button {
+		font-size: var(--default-font-size);
 		font-weight: bold;
 		width: 220px;
 		height: 44px;

@@ -24,37 +24,37 @@
 	<section>
 		<HeaderBar
 			:account-property="accountProperty"
-			label-for="jobtitle"
-			:scope.sync="primaryJobTitle.scope" />
+			label-for="role"
+			:scope.sync="primaryRole.scope" />
 
-		<JobTitle
-			:job-title.sync="primaryJobTitle.value"
-			:scope.sync="primaryJobTitle.scope" />
+		<Role
+			:role.sync="primaryRole.value"
+			:scope.sync="primaryRole.scope" />
 	</section>
 </template>
 
 <script>
 import { loadState } from '@nextcloud/initial-state'
 
-import JobTitle from './JobTitle'
+import Role from './Role'
 import HeaderBar from '../shared/HeaderBar'
 
 import { ACCOUNT_PROPERTY_READABLE_ENUM } from '../../../constants/AccountPropertyConstants'
 
-const { jobTitleMap: { primaryJobTitle } } = loadState('settings', 'personalInfoParameters', {})
+const { roleMap: { primaryRole } } = loadState('settings', 'personalInfoParameters', {})
 
 export default {
-	name: 'JobTitleSection',
+	name: 'RoleSection',
 
 	components: {
-		JobTitle,
+		Role,
 		HeaderBar,
 	},
 
 	data() {
 		return {
-			accountProperty: ACCOUNT_PROPERTY_READABLE_ENUM.JOB_TITLE,
-			primaryJobTitle,
+			accountProperty: ACCOUNT_PROPERTY_READABLE_ENUM.ROLE,
+			primaryRole,
 		}
 	},
 }

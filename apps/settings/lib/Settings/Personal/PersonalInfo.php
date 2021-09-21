@@ -160,8 +160,8 @@ class PersonalInfo implements ISettings {
 			'emailMap' => $this->getEmailMap($account),
 			'languageMap' => $this->getLanguageMap($user),
 			'profileEnabled' => $this->isProfileEnabled($account),
-			'companyMap' => $this->getCompanyMap($account),
-			'jobTitleMap' => $this->getJobTitleMap($account),
+			'organisationMap' => $this->getOrganisationMap($account),
+			'roleMap' => $this->getRoleMap($account),
 			'headlineMap' => $this->getHeadlineMap($account),
 			'biographyMap' => $this->getBiographyMap($account),
 		];
@@ -196,21 +196,21 @@ class PersonalInfo implements ISettings {
 	}
 
 	/**
-	 * returns the primary company in an
+	 * returns the primary organisation in an
 	 * associative array
 	 */
-	private function getCompanyMap(IAccount $account): array {
-		$primaryCompany = [
-			'value' => $account->getProperty(IAccountManager::PROPERTY_COMPANY)->getValue(),
-			'scope' => $account->getProperty(IAccountManager::PROPERTY_COMPANY)->getScope(),
-			'verified' => $account->getProperty(IAccountManager::PROPERTY_COMPANY)->getVerified(),
+	private function getOrganisationMap(IAccount $account): array {
+		$primaryOrganisation = [
+			'value' => $account->getProperty(IAccountManager::PROPERTY_ORGANISATION)->getValue(),
+			'scope' => $account->getProperty(IAccountManager::PROPERTY_ORGANISATION)->getScope(),
+			'verified' => $account->getProperty(IAccountManager::PROPERTY_ORGANISATION)->getVerified(),
 		];
 
-		$companyMap = [
-			'primaryCompany' => $primaryCompany,
+		$organisationMap = [
+			'primaryOrganisation' => $primaryOrganisation,
 		];
 
-		return $companyMap;
+		return $organisationMap;
 	}
 
 	/**
@@ -232,21 +232,21 @@ class PersonalInfo implements ISettings {
 	}
 
 	/**
-	 * returns the primary job title in an
+	 * returns the primary role in an
 	 * associative array
 	 */
-	private function getJobTitleMap(IAccount $account): array {
-		$primaryJobTitle = [
-			'value' => $account->getProperty(IAccountManager::PROPERTY_JOB_TITLE)->getValue(),
-			'scope' => $account->getProperty(IAccountManager::PROPERTY_JOB_TITLE)->getScope(),
-			'verified' => $account->getProperty(IAccountManager::PROPERTY_JOB_TITLE)->getVerified(),
+	private function getRoleMap(IAccount $account): array {
+		$primaryRole = [
+			'value' => $account->getProperty(IAccountManager::PROPERTY_ROLE)->getValue(),
+			'scope' => $account->getProperty(IAccountManager::PROPERTY_ROLE)->getScope(),
+			'verified' => $account->getProperty(IAccountManager::PROPERTY_ROLE)->getVerified(),
 		];
 
-		$jobTitleMap = [
-			'primaryJobTitle' => $primaryJobTitle,
+		$roleMap = [
+			'primaryRole' => $primaryRole,
 		];
 
-		return $jobTitleMap;
+		return $roleMap;
 	}
 
 	/**

@@ -29,9 +29,13 @@
 				<h2 class="profile__header__container__displayname">
 					{{ displayName }}
 					<a v-if="isCurrentUser"
-						class="primary profile__header__container__button"
+						class="primary profile__header__container__edit-button"
 						:href="settingsUrl">
-						{{ t('core', 'Edit profile') }}
+						<PencilIcon
+							decorative
+							title=""
+							:size="16" />
+						{{ t('core', 'Edit Profile') }}
 					</a>
 				</h2>
 				<div v-if="status.icon || status.message"
@@ -105,8 +109,8 @@
 
 			<div class="profile__blocks">
 				<div class="profile__blocks-details">
-					<div v-if="company || jobTitle" class="detail">
-						<p>{{ company }} {{ (company && jobTitle) && '•' }} {{ jobTitle }}</p>
+					<div v-if="organisation || role" class="detail">
+						<p>{{ organisation }} {{ (organisation && role) && '•' }} {{ role }}</p>
 					</div>
 					<div v-if="address" class="detail">
 						<p>
@@ -134,7 +138,7 @@
 							fill-color="var(--color-text-maxcontrast)"
 							:size="60" />
 						<h3>{{ displayName }} {{ t('core', 'hasn\'t added any info yet') }}</h3>
-						<p>Headline and biography will show up here</p>
+						<p>Headline and about sections will show up here</p>
 					</div>
 				</template>
 			</div>
@@ -155,12 +159,13 @@ import ActionLink from '@nextcloud/vue/dist/Components/ActionLink'
 // import ProfileSettings from './ProfileSettings'
 // import PhoneIcon from 'vue-material-design-icons/Phone'
 import MapMarkerIcon from 'vue-material-design-icons/MapMarker'
+import PencilIcon from 'vue-material-design-icons/Pencil'
 import AccountIcon from 'vue-material-design-icons/Account'
 import { showError } from '@nextcloud/dialogs'
 
 import PrimaryActionButton from '../components/Profile/PrimaryActionButton'
 
-const { actionParameters, userId, biography, company, headline, jobTitle, displayName, address, isAvatarDisplayed } = loadState('core', 'profileParameters', {})
+const { actionParameters, userId, biography, organisation, headline, role, displayName, address, isAvatarDisplayed } = loadState('core', 'profileParameters', {})
 const status = loadState('core', 'status', {})
 
 // const actionParameters = []
@@ -175,6 +180,7 @@ export default {
 		AccountIcon,
 		// PhoneIcon,
 		MapMarkerIcon,
+		PencilIcon,
 		PrimaryActionButton,
 	},
 
@@ -184,8 +190,8 @@ export default {
 			displayName,
 			address,
 			status,
-			company,
-			jobTitle,
+			organisation,
+			role,
 			headline,
 			biography,
 		}
@@ -297,10 +303,10 @@ $content-max-width: 640px;
 
 			&__displayname {
 				width: $content-max-width;
-				margin-top: 132px;
+				margin-top: 128px;
 				// Overrides the global style declaration
 				margin-bottom: 0;
-				font-size: 26px;
+				font-size: 30px;
 				display: flex;
 				align-items: center;
 				cursor: text;
@@ -310,22 +316,29 @@ $content-max-width: 640px;
 				}
 			}
 
-			&__button {
+			&__edit-button {
 				border: none;
-				box-shadow: 0 0 0 1px var(--color-primary-text);
-				margin-left: 12px;
-				margin-top: 8px;
-				background-color: var(--color-primary-element);
-				color: var(--color-primary-text);
+				margin-left: 18px;
+				margin-top: 6px;
+				color: var(--color-primary-element);
+				background-color: var(--color-primary-text);
+				box-shadow: 0 0 0 2px var(--color-primary-text);
 				border-radius: var(--border-radius-pill);
+				padding: 0 18px;
+				font-size: var(--default-font-size);
+				height: 44px;
+				line-height: 44px;
 				font-weight: bold;
-				padding: 6px 16px;
-				font-size: 13px;
-				height: 34px;
-				line-height: 22px;
 
 				&:hover {
+					color: var(--color-primary-text);
 					background-color: var(--color-primary-element-light);
+				}
+
+				span {
+					display: inline-block;
+					vertical-align: middle;
+					margin-top: 2px;
 				}
 			}
 
@@ -415,7 +428,7 @@ $content-max-width: 640px;
 				display: inline-block;
 				color: var(--color-text-maxcontrast);
 
-				& span {
+				span {
 					display: inline-block;
 					vertical-align: middle;
 				}

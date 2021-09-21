@@ -95,7 +95,7 @@ export default {
 
 	computed: {
 		isProfileProperty() {
-			return this.accountProperty === t('settings', 'Profile')
+			return this.accountProperty === ACCOUNT_PROPERTY_READABLE_ENUM.PROFILE_ENABLED
 		},
 
 		isSettingProperty() {

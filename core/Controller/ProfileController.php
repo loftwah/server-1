@@ -99,8 +99,8 @@ class ProfileController extends Controller {
 	public const PROFILE_DISPLAY_PROPERTIES = [
 		IAccountManager::PROPERTY_DISPLAYNAME,
 		IAccountManager::PROPERTY_ADDRESS,
-		IAccountManager::PROPERTY_COMPANY,
-		IAccountManager::PROPERTY_JOB_TITLE,
+		IAccountManager::PROPERTY_ORGANISATION,
+		IAccountManager::PROPERTY_ROLE,
 		IAccountManager::PROPERTY_HEADLINE,
 		IAccountManager::PROPERTY_BIOGRAPHY,
 	];
@@ -111,8 +111,8 @@ class ProfileController extends Controller {
 	public const PROFILE_DISPLAY_PROPERTY_JSON_MAP = [
 		IAccountManager::PROPERTY_DISPLAYNAME => 'displayName',
 		IAccountManager::PROPERTY_ADDRESS => 'address',
-		IAccountManager::PROPERTY_COMPANY => 'company',
-		IAccountManager::PROPERTY_JOB_TITLE => 'jobTitle',
+		IAccountManager::PROPERTY_ORGANISATION => 'organisation',
+		IAccountManager::PROPERTY_ROLE => 'role',
 		IAccountManager::PROPERTY_HEADLINE => 'headline',
 		IAccountManager::PROPERTY_BIOGRAPHY => 'biography',
 	];

@@ -21,18 +21,18 @@
 -->
 
 <template>
-	<div class="company">
+	<div class="organisation">
 		<input
-			id="company"
+			id="organisation"
 			type="text"
-			:placeholder="t('settings', 'Your company')"
-			:value="company"
+			:placeholder="t('settings', 'Your organisation')"
+			:value="organisation"
 			autocapitalize="none"
 			autocomplete="on"
 			autocorrect="off"
-			@input="onCompanyChange">
+			@input="onOrganisationChange">
 
-		<div class="company__actions-container">
+		<div class="organisation__actions-container">
 			<transition name="fade">
 				<span v-if="showCheckmarkIcon" class="icon-checkmark" />
 				<span v-else-if="showErrorIcon" class="icon-error" />
@@ -50,10 +50,10 @@ import { ACCOUNT_PROPERTY_ENUM } from '../../../constants/AccountPropertyConstan
 import { savePrimaryAccountProperty } from '../../../service/PersonalInfo/PersonalInfoService'
 
 export default {
-	name: 'Company',
+	name: 'Organisation',
 
 	props: {
-		company: {
+		organisation: {
 			type: String,
 			required: true,
 		},
@@ -65,7 +65,7 @@ export default {
 
 	data() {
 		return {
-			initialCompany: this.company,
+			initialOrganisation: this.organisation,
 			localScope: this.scope,
 			showCheckmarkIcon: false,
 			showErrorIcon: false,
@@ -73,35 +73,35 @@ export default {
 	},
 
 	methods: {
-		onCompanyChange(e) {
-			this.$emit('update:company', e.target.value)
-			this.debounceCompanyChange(e.target.value.trim())
+		onOrganisationChange(e) {
+			this.$emit('update:organisation', e.target.value)
+			this.debounceOrganisationChange(e.target.value.trim())
 		},
 
-		debounceCompanyChange: debounce(async function(company) {
-			await this.updatePrimaryCompany(company)
+		debounceOrganisationChange: debounce(async function(organisation) {
+			await this.updatePrimaryOrganisation(organisation)
 		}, 500),
 
-		async updatePrimaryCompany(company) {
+		async updatePrimaryOrganisation(organisation) {
 			try {
-				const responseData = await savePrimaryAccountProperty(ACCOUNT_PROPERTY_ENUM.COMPANY, company)
+				const responseData = await savePrimaryAccountProperty(ACCOUNT_PROPERTY_ENUM.ORGANISATION, organisation)
 				this.handleResponse({
-					company,
+					organisation,
 					status: responseData.ocs?.meta?.status,
 				})
 			} catch (e) {
 				this.handleResponse({
-					errorMessage: t('settings', 'Unable to update company'),
+					errorMessage: t('settings', 'Unable to update organisation'),
 					error: e,
 				})
 			}
 		},
 
-		handleResponse({ company, status, errorMessage, error }) {
+		handleResponse({ organisation, status, errorMessage, error }) {
 			if (status === 'ok') {
 				// Ensure that local state reflects server state
-				this.initialCompany = company
-				emit('settings:company:updated', company)
+				this.initialOrganisation = organisation
+				emit('settings:organisation:updated', organisation)
 				this.showCheckmarkIcon = true
 				setTimeout(() => { this.showCheckmarkIcon = false }, 2000)
 			} else {
@@ -120,7 +120,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.company {
+.organisation {
 	display: grid;
 	align-items: center;
 
@@ -138,7 +138,7 @@ export default {
 		cursor: text;
 	}
 
-	.company__actions-container {
+	.organisation__actions-container {
 		grid-area: 1 / 1;
 		justify-self: flex-end;
 		height: 30px;

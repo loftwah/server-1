@@ -26,6 +26,7 @@ declare(strict_types=1);
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
 namespace OCP\Accounts;
 
 use OCP\IUser;
@@ -96,8 +97,8 @@ interface IAccountManager {
 	public const PROPERTY_ADDRESS = 'address';
 	public const PROPERTY_TWITTER = 'twitter';
 
-	public const PROPERTY_COMPANY = 'company';
-	public const PROPERTY_JOB_TITLE = 'job_title';
+	public const PROPERTY_ORGANISATION = 'organisation';
+	public const PROPERTY_ROLE = 'role';
 	public const PROPERTY_HEADLINE = 'headline';
 	public const PROPERTY_BIOGRAPHY = 'biography';
 	public const PROPERTY_PROFILE_ENABLED = 'profile_enabled';

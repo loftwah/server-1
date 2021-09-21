@@ -29,7 +29,7 @@
 			:profile-enabled.sync="profileEnabled" />
 
 		<ProfilePreviewCard
-			:company="company"
+			:organisation="organisation"
 			:display-name="displayName"
 			:profile-enabled="profileEnabled"
 			:user-id="userId" />
@@ -45,10 +45,9 @@ import ProfileCheckbox from './ProfileCheckbox'
 import ProfilePreviewCard from './ProfilePreviewCard'
 
 import { ACCOUNT_PROPERTY_READABLE_ENUM } from '../../../constants/AccountPropertyConstants'
-import { validateEnableProfile } from '../../../utils/validate'
 
 const {
-	companyMap: { primaryCompany: { value: company } },
+	organisationMap: { primaryOrganisation: { value: organisation } },
 	displayNameMap: { primaryDisplayName: { value: displayName } },
 	profileEnabled,
 	userId,
@@ -66,7 +65,7 @@ export default {
 	data() {
 		return {
 			accountProperty: ACCOUNT_PROPERTY_READABLE_ENUM.PROFILE_ENABLED,
-			company,
+			organisation,
 			displayName,
 			profileEnabled,
 			userId,
@@ -75,12 +74,12 @@ export default {
 
 	mounted() {
 		subscribe('settings:display-name:updated', this.handleDisplayNameUpdate)
-		subscribe('settings:company:updated', this.handleCompanyUpdate)
+		subscribe('settings:organisation:updated', this.handleOrganisationUpdate)
 	},
 
 	beforeDestroy() {
 		unsubscribe('settings:display-name:updated', this.handleDisplayNameUpdate)
-		unsubscribe('settings:company:updated', this.handleCompanyUpdate)
+		unsubscribe('settings:organisation:updated', this.handleOrganisationUpdate)
 	},
 
 	methods: {
@@ -88,8 +87,8 @@ export default {
 			this.displayName = displayName
 		},
 
-		handleCompanyUpdate(company) {
-			this.company = company
+		handleOrganisationUpdate(organisation) {
+			this.organisation = organisation
 		},
 	},
 }
