@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Björn Schießle <schiessle@owncloud.com>
  *
@@ -168,6 +169,26 @@ class AccountManagerTest extends TestCase {
 						'value' => 'https://acme.com',
 						'scope' => IAccountManager::SCOPE_PRIVATE
 					],
+					[
+						'name' => IAccountManager::PROPERTY_ORGANISATION,
+						'value' => 'Some organisation',
+						'scope' => IAccountManager::SCOPE_LOCAL
+					],
+					[
+						'name' => IAccountManager::PROPERTY_ROLE,
+						'value' => 'Human',
+						'scope' => IAccountManager::SCOPE_LOCAL
+					],
+					[
+						'name' => IAccountManager::PROPERTY_HEADLINE,
+						'value' => 'Hi',
+						'scope' => IAccountManager::SCOPE_LOCAL
+					],
+					[
+						'name' => IAccountManager::PROPERTY_BIOGRAPHY,
+						'value' => 'Biography',
+						'scope' => IAccountManager::SCOPE_LOCAL
+					],
 				],
 			],
 			[
@@ -202,6 +223,26 @@ class AccountManagerTest extends TestCase {
 						'name' => IAccountManager::PROPERTY_WEBSITE,
 						'value' => 'https://example.org',
 						'scope' => IAccountManager::SCOPE_LOCAL
+					],
+					[
+						'name' => IAccountManager::PROPERTY_ORGANISATION,
+						'value' => 'Another organisation',
+						'scope' => IAccountManager::SCOPE_FEDERATED
+					],
+					[
+						'name' => IAccountManager::PROPERTY_ROLE,
+						'value' => 'Alien',
+						'scope' => IAccountManager::SCOPE_FEDERATED
+					],
+					[
+						'name' => IAccountManager::PROPERTY_HEADLINE,
+						'value' => 'Hello',
+						'scope' => IAccountManager::SCOPE_FEDERATED
+					],
+					[
+						'name' => IAccountManager::PROPERTY_BIOGRAPHY,
+						'value' => 'Different biography',
+						'scope' => IAccountManager::SCOPE_FEDERATED
 					],
 				],
 			],
@@ -238,6 +279,26 @@ class AccountManagerTest extends TestCase {
 						'value' => 'https://example.com',
 						'scope' => IAccountManager::SCOPE_PUBLISHED
 					],
+					[
+						'name' => IAccountManager::PROPERTY_ORGANISATION,
+						'value' => 'Yet another organisation',
+						'scope' => IAccountManager::SCOPE_PUBLISHED
+					],
+					[
+						'name' => IAccountManager::PROPERTY_ROLE,
+						'value' => 'Being',
+						'scope' => IAccountManager::SCOPE_PUBLISHED
+					],
+					[
+						'name' => IAccountManager::PROPERTY_HEADLINE,
+						'value' => 'This is a headline',
+						'scope' => IAccountManager::SCOPE_PUBLISHED
+					],
+					[
+						'name' => IAccountManager::PROPERTY_BIOGRAPHY,
+						'value' => 'Some long biography',
+						'scope' => IAccountManager::SCOPE_PUBLISHED
+					],
 				],
 			],
 			[
@@ -272,6 +333,26 @@ class AccountManagerTest extends TestCase {
 						'name' => IAccountManager::PROPERTY_WEBSITE,
 						'value' => 'https://emca.com',
 						'scope' => IAccountManager::SCOPE_FEDERATED
+					],
+					[
+						'name' => IAccountManager::PROPERTY_ORGANISATION,
+						'value' => 'Organisation A',
+						'scope' => IAccountManager::SCOPE_LOCAL
+					],
+					[
+						'name' => IAccountManager::PROPERTY_ROLE,
+						'value' => 'Animal',
+						'scope' => IAccountManager::SCOPE_LOCAL
+					],
+					[
+						'name' => IAccountManager::PROPERTY_HEADLINE,
+						'value' => 'My headline',
+						'scope' => IAccountManager::SCOPE_LOCAL
+					],
+					[
+						'name' => IAccountManager::PROPERTY_BIOGRAPHY,
+						'value' => 'Short biography',
+						'scope' => IAccountManager::SCOPE_LOCAL
 					],
 					[
 						'name' => IAccountManager::COLLECTION_EMAIL,
@@ -317,6 +398,26 @@ class AccountManagerTest extends TestCase {
 						'name' => IAccountManager::PROPERTY_WEBSITE,
 						'value' => 'https://elpmaxe.org',
 						'scope' => IAccountManager::SCOPE_PUBLISHED
+					],
+					[
+						'name' => IAccountManager::PROPERTY_ORGANISATION,
+						'value' => 'Organisation B',
+						'scope' => IAccountManager::SCOPE_FEDERATED
+					],
+					[
+						'name' => IAccountManager::PROPERTY_ROLE,
+						'value' => 'Organism',
+						'scope' => IAccountManager::SCOPE_FEDERATED
+					],
+					[
+						'name' => IAccountManager::PROPERTY_HEADLINE,
+						'value' => 'Best headline',
+						'scope' => IAccountManager::SCOPE_FEDERATED
+					],
+					[
+						'name' => IAccountManager::PROPERTY_BIOGRAPHY,
+						'value' => 'Autobiography',
+						'scope' => IAccountManager::SCOPE_FEDERATED
 					],
 				],
 			],

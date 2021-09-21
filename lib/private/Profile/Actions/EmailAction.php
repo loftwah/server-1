@@ -24,14 +24,19 @@
 
 namespace OC\Profile\Actions;
 
+use OCP\Accounts\IAccountManager;
 use OCP\IURLGenerator;
+use OCP\IUser;
 use OCP\L10N\IFactory;
-use OCP\Profile\IProfileAction;
+use OCP\Profile\IAction;
 
-class EmailAction implements IProfileAction {
+class EmailAction implements IAction {
 
 	/** @var string */
 	private $value;
+
+	/** @var IAccountManager */
+	private $accountManager;
 
 	/** @var IFactory */
 	private $l10nFactory;
@@ -39,22 +44,27 @@ class EmailAction implements IProfileAction {
 	/** @var IUrlGenerator */
 	private $urlGenerator;
 
-	/**
-	 * Action constructor
-	 *
-	 * @param IL10N $l10n
-	 * @param IURLGenerator $urlGenerator
-	 */
 	public function __construct(
+		IAccountManager $accountManager,
 		IFactory $l10nFactory,
 		IURLGenerator $urlGenerator
 	) {
+		$this->accountManager = $accountManager;
 		$this->l10nFactory = $l10nFactory;
 		$this->urlGenerator = $urlGenerator;
 	}
 
-	public function getName(): string {
-		return 'email';
+	public function preload(IUser $user): void {
+		$account = $this->accountManager->getAccount($user);
+		$this->value = $account->getProperty(IAccountManager::PROPERTY_EMAIL)->getValue();
+	}
+
+	public function getAppId(): string {
+		return 'core';
+	}
+
+	public function getId(): string {
+		return IAccountManager::PROPERTY_EMAIL;
 	}
 
 	public function getTitle(): string {
@@ -75,9 +85,5 @@ class EmailAction implements IProfileAction {
 
 	public function getTarget(): string {
 		return 'mailto:' . $this->value;
-	}
-
-	public function setValue(string $value): string {
-		return $this->value = $value;
 	}
 }

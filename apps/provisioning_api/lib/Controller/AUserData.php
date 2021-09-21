@@ -181,6 +181,10 @@ abstract class AUserData extends OCSController {
 				IAccountManager::PROPERTY_ADDRESS,
 				IAccountManager::PROPERTY_WEBSITE,
 				IAccountManager::PROPERTY_TWITTER,
+				IAccountManager::PROPERTY_ORGANISATION,
+				IAccountManager::PROPERTY_ROLE,
+				IAccountManager::PROPERTY_HEADLINE,
+				IAccountManager::PROPERTY_BIOGRAPHY,
 				IAccountManager::PROPERTY_PROFILE_ENABLED,
 			] as $propertyName) {
 				$property = $userAccount->getProperty($propertyName);

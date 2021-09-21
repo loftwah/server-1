@@ -33,7 +33,7 @@ use OCP\IUserManager;
 use OCP\L10N\IFactory as IL10NFactory;
 
 class ProfileProvider implements IProvider {
-	use \OC\Accounts\TAccountsHelper;
+	use \OC\Profile\TProfileHelper;
 
 	/** @var IAccountManager */
 	private $accountManager;
@@ -51,8 +51,11 @@ class ProfileProvider implements IProvider {
 	private $userManager;
 
 	/**
+	 * @param IAccountManager $accountManager
 	 * @param IActionFactory $actionFactory
+	 * @param IL10NFactory $l10nFactory
 	 * @param IURLGenerator $urlGenerator
+	 * @param IUserManager $userManager
 	 */
 	public function __construct(
 		IAccountManager $accountManager,
@@ -78,7 +81,7 @@ class ProfileProvider implements IProvider {
 			$account = $this->accountManager->getAccount($user);
 			if ($this->isProfileEnabled($account)) {
 				$iconUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->imagePath('core', 'actions/profile.svg'));
-				$profileActionText = $this->l10nFactory->get('core')->t('Open profile of') . ' ' . $entry->getProperty('FN');
+				$profileActionText = $this->l10nFactory->get('core')->t('View profile');
 				$profileUrl = $this->urlGenerator->linkToRouteAbsolute('core.profile.index', ['userId' => $entry->getProperty('UID')]);
 				$action = $this->actionFactory->newLinkAction($iconUrl, $profileActionText, $profileUrl);
 				// Set highest priority (by descending order), other actions have the default priority 10 as defined in lib/private/Contacts/ContactsMenu/Actions/LinkAction.php

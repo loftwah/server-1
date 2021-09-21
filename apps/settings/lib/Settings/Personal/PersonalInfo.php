@@ -39,8 +39,10 @@ namespace OCA\Settings\Settings\Personal;
 use OCA\FederatedFileSharing\FederatedShareProvider;
 use OCP\Accounts\IAccount;
 use OCP\Accounts\IAccountManager;
+use OCP\Accounts\IAccountProperty;
 use OCP\App\IAppManager;
 use OCP\AppFramework\Http\TemplateResponse;
+use OCP\AppFramework\Services\IInitialState;
 use OCP\Files\FileInfo;
 use OCP\IConfig;
 use OCP\IGroup;
@@ -50,11 +52,9 @@ use OCP\IUser;
 use OCP\IUserManager;
 use OCP\L10N\IFactory;
 use OCP\Settings\ISettings;
-use OCP\Accounts\IAccountProperty;
-use OCP\AppFramework\Services\IInitialState;
 
 class PersonalInfo implements ISettings {
-	use \OC\Accounts\TAccountsHelper;
+	use \OC\Profile\TProfileHelper;
 
 	/** @var IConfig */
 	private $config;

@@ -44,7 +44,7 @@ use OCP\IUserManager;
 use OCP\L10N\IFactory as IL10NFactory;
 
 class ContactsStore implements IContactsStore {
-	use \OC\Accounts\TAccountsHelper;
+	use \OC\Profile\TProfileHelper;
 
 	/** @var IAccountManager */
 	private $accountManager;
@@ -328,14 +328,14 @@ class ContactsStore implements IContactsStore {
 			}
 		}
 
+		// Provide profile parameters for core/src/OC/contactsmenu/contact.handlebars template
 		if (isset($contact['UID']) && isset($contact['FN'])) {
 			$userId = $contact['UID'];
 			$user = $this->userManager->get($userId);
-			$fullName = $contact['FN'];
 			if (!empty($user)) {
 				$account = $this->accountManager->getAccount($user);
 				if ($this->isProfileEnabled($account)) {
-					$entry->setProfileTitle($this->l10nFactory->get('core')->t('Open profile of') . ' ' . $fullName);
+					$entry->setProfileTitle($this->l10nFactory->get('core')->t('View profile'));
 					$entry->setProfileUrl($this->urlGenerator->linkToRouteAbsolute('core.profile.index', ['userId' => $userId]));
 				}
 			}

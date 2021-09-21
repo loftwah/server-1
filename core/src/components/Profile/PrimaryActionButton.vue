@@ -22,7 +22,6 @@
 
 <template>
 	<a
-		v-tooltip.auto="label"
 		class="profile__primary-action-button"
 		:class="{ 'disabled': disabled }"
 		:href="href"
@@ -38,14 +37,8 @@
 </template>
 
 <script>
-import Tooltip from '@nextcloud/vue/dist/Directives/Tooltip'
-
 export default {
 	name: 'PrimaryActionButton',
-
-	directives: {
-		tooltip: Tooltip,
-	},
 
 	props: {
 		disabled: {
@@ -84,7 +77,7 @@ export default {
 	.profile__primary-action-button {
 		font-size: var(--default-font-size);
 		font-weight: bold;
-		width: 220px;
+		width: 200px;
 		height: 44px;
 		padding: 0 16px;
 		line-height: 44px;

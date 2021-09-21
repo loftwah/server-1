@@ -27,21 +27,23 @@ declare(strict_types=1);
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
 namespace OC\AppFramework\Bootstrap;
 
-use OC\Support\CrashReport\Registry;
+use function class_exists;
+use function class_implements;
+use function in_array;
 use OC_App;
+use OC\Support\CrashReport\Registry;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\QueryException;
 use OCP\Dashboard\IManager;
 use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IServerContainer;
+use OCP\Profile\IProfileManager;
 use Psr\Log\LoggerInterface;
 use Throwable;
-use function class_exists;
-use function class_implements;
-use function in_array;
 
 class Coordinator {
 
@@ -53,6 +55,9 @@ class Coordinator {
 
 	/** @var IManager */
 	private $dashboardManager;
+
+	/** @var IProfileManager */
+	private $profileManager;
 
 	/** @var IEventDispatcher */
 	private $eventDispatcher;
@@ -66,14 +71,18 @@ class Coordinator {
 	/** @var string[] */
 	private $bootedApps = [];
 
-	public function __construct(IServerContainer $container,
-								Registry $registry,
-								IManager $dashboardManager,
-								IEventDispatcher $eventListener,
-								LoggerInterface $logger) {
+	public function __construct(
+		IServerContainer $container,
+		Registry $registry,
+		IManager $dashboardManager,
+		IProfileManager $profileManager,
+		IEventDispatcher $eventListener,
+		LoggerInterface $logger
+	) {
 		$this->serverContainer = $container;
 		$this->registry = $registry;
 		$this->dashboardManager = $dashboardManager;
+		$this->profileManager = $profileManager;
 		$this->eventDispatcher = $eventListener;
 		$this->logger = $logger;
 	}
@@ -141,6 +150,7 @@ class Coordinator {
 		$this->registrationContext->delegateCapabilityRegistrations($apps);
 		$this->registrationContext->delegateCrashReporterRegistrations($apps, $this->registry);
 		$this->registrationContext->delegateDashboardPanelRegistrations($apps, $this->dashboardManager);
+		$this->registrationContext->delegateProfileActionRegistrations($apps, $this->profileManager);
 		$this->registrationContext->delegateEventListenerRegistrations($this->eventDispatcher);
 		$this->registrationContext->delegateContainerRegistrations($apps);
 		$this->registrationContext->delegateMiddlewareRegistrations($apps);

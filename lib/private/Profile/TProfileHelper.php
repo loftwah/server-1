@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 /**
- * @copyright Copyright (c) 2021 John Molakvoæ <skjnldsv@protonmail.com>
+ * @copyright 2021 Christopher Ng <chrng8@gmail.com>
  *
- * @author John Molakvoæ <skjnldsv@protonmail.com>
+ * @author Christopher Ng <chrng8@gmail.com>
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -24,24 +24,23 @@ declare(strict_types=1);
  *
  */
 
-namespace OCP\Profile;
+namespace OC\Profile;
 
-/**
- * @since 23
- */
-interface IActionManager {
+use OCP\Accounts\IAccount;
+use OCP\Accounts\IAccountManager;
 
-	/**
-	 * Register a new action for the user profile page
-	 *
-	 * @since 23
-	 */
-	public function registerAction(string $action, string $value): void;
+trait TProfileHelper {
 
 	/**
-	 * Returns the list of all registered profile actions
+	 * Returns whether the profile is enabled for the account
 	 *
-	 * @since 23
+	 * @since 23.0.0
 	 */
-	public function getActions(): array;
+	protected function isProfileEnabled(IAccount $account): ?bool {
+		return filter_var(
+			$account->getProperty(IAccountManager::PROPERTY_PROFILE_ENABLED)->getValue(),
+			FILTER_VALIDATE_BOOLEAN,
+			FILTER_NULL_ON_FAILURE,
+		);
+	}
 }

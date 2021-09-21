@@ -1574,6 +1574,10 @@ class UsersControllerTest extends TestCase {
 			[IAccountManager::PROPERTY_PHONE, '1234', '12345'],
 			[IAccountManager::PROPERTY_ADDRESS, 'Something street 2', 'Another street 3'],
 			[IAccountManager::PROPERTY_WEBSITE, 'https://examplesite1', 'https://examplesite2'],
+			[IAccountManager::PROPERTY_ORGANISATION, 'Organisation A', 'Organisation B'],
+			[IAccountManager::PROPERTY_ROLE, 'Human', 'Alien'],
+			[IAccountManager::PROPERTY_HEADLINE, 'Hi', 'Hello'],
+			[IAccountManager::PROPERTY_BIOGRAPHY, 'A biography', 'Another biography'],
 		];
 	}
 
@@ -1645,6 +1649,10 @@ class UsersControllerTest extends TestCase {
 			[IAccountManager::PROPERTY_PHONE, IAccountManager::SCOPE_LOCAL, IAccountManager::SCOPE_FEDERATED],
 			[IAccountManager::PROPERTY_ADDRESS, IAccountManager::SCOPE_LOCAL, IAccountManager::SCOPE_FEDERATED],
 			[IAccountManager::PROPERTY_WEBSITE, IAccountManager::SCOPE_LOCAL, IAccountManager::SCOPE_FEDERATED],
+			[IAccountManager::PROPERTY_ORGANISATION, IAccountManager::SCOPE_LOCAL, IAccountManager::SCOPE_FEDERATED],
+			[IAccountManager::PROPERTY_ROLE, IAccountManager::SCOPE_LOCAL, IAccountManager::SCOPE_FEDERATED],
+			[IAccountManager::PROPERTY_HEADLINE, IAccountManager::SCOPE_LOCAL, IAccountManager::SCOPE_FEDERATED],
+			[IAccountManager::PROPERTY_BIOGRAPHY, IAccountManager::SCOPE_LOCAL, IAccountManager::SCOPE_FEDERATED],
 		];
 	}
 

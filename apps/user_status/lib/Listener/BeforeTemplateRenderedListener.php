@@ -27,18 +27,18 @@ declare(strict_types=1);
 
 namespace OCA\UserStatus\Listener;
 
-use OCP\Accounts\IAccountManager;
-use OCP\IUserSession;
 use OCA\UserStatus\AppInfo\Application;
 use OCA\UserStatus\Service\JSDataService;
+use OCP\Accounts\IAccountManager;
 use OCP\AppFramework\Http\Events\BeforeTemplateRenderedEvent;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use OCP\IInitialStateService;
+use OCP\IUserSession;
 
 class BeforeTemplateRenderedListener implements IEventListener {
-	use \OC\Accounts\TAccountsHelper;
+	use \OC\Profile\TProfileHelper;
 
 	/** @var IAccountManager */
 	private $accountManager;
