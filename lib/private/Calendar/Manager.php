@@ -24,6 +24,7 @@
 namespace OC\Calendar;
 
 use OCP\Calendar\ICalendar;
+use OCP\Calendar\ICalendarProvider;
 
 class Manager implements \OCP\Calendar\IManager {
 
@@ -36,6 +37,13 @@ class Manager implements \OCP\Calendar\IManager {
 	 * @var \Closure[] to call to load/register calendar providers
 	 */
 	private $calendarLoaders = [];
+
+	/** @var ICalendarProvider */
+	private $calendarProvider;
+
+	public function __construct(ICalendarProvider $calendarProvider) {
+		$this->calendarProvider = $calendarProvider;
+	}
 
 	/**
 	 * This function is used to search and find objects within the user's calendars.
@@ -136,5 +144,32 @@ class Manager implements \OCP\Calendar\IManager {
 			$callable($this);
 		}
 		$this->calendarLoaders = [];
+	}
+
+	/**
+	 * This function is used to search and find objects within the user's calendars.
+	 * In case $pattern is empty all events/journals/todos will be returned.
+	 *
+	 * @param string $pattern which should match within the $searchProperties
+	 * @param array $searchProperties defines the properties within the query pattern should match
+	 * @param array $options - optional parameters:
+	 * 	['timerange' => ['start' => new DateTime(...), 'end' => new DateTime(...)]]
+	 * @param integer|null $limit - limit number of search results
+	 * @param integer|null $offset - offset for paging of search results
+	 * @return array an array of events/journals/todos which are arrays of arrays of key-value-pairs
+	 * @since 13.0.0
+	 */
+	public function searchForCalendarUri(string $principalUri, $pattern, array $searchProperties = [], array $options = [], $limit = null, $offset = null) {
+		$calendars = $this->calendarProvider->getCalendars($principalUri);
+		$result = [];
+		foreach ($calendars as $calendar) {
+			$r = $calendar->search($pattern, $searchProperties, $options, $limit, $offset);
+			foreach ($r as $o) {
+				$o['calendar-key'] = $calendar->getKey();
+				$result[] = $o;
+			}
+		}
+
+		return $result;
 	}
 }
