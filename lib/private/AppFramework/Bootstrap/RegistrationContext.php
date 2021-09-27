@@ -98,7 +98,7 @@ class RegistrationContext {
 	private $twoFactorProviders = [];
 
 	/** @var ServiceRegistration<ICalendarProvider>[] */
-	private $calendarProviders = [];
+	private $calendarProvider = [];
 
 	/** @var LoggerInterface */
 	private $logger;
@@ -232,7 +232,7 @@ class RegistrationContext {
 			}
 
 			public function registerCalendarProvider(string $class): void {
-				$this->context->registerCalendarProviders(
+				$this->context->registerCalendarProvider(
 					$this->appId,
 					$class
 				);
@@ -312,8 +312,8 @@ class RegistrationContext {
 		$this->twoFactorProviders[] = new ServiceRegistration($appId, $class);
 	}
 
-	public function registerCalendarProviders(string $appId, string $class): void {
-		$this->calendarProviders[] = new ServiceRegistration($appId, $class);
+	public function registerCalendarProvider(string $appId, string $class): void {
+		$this->calendarProvider[] = new ServiceRegistration($appId, $class);
 	}
 
 	/**
@@ -550,7 +550,7 @@ class RegistrationContext {
 	/**
 	 * @return ServiceRegistration<ICalendarProvider>[]
 	 */
-	public function getCalendarProviders(): array {
-		return $this->calendarProviders;
+	public function getCalendarProvider(): array {
+		return $this->calendarProvider;
 	}
 }

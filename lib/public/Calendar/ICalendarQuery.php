@@ -1,8 +1,9 @@
 <?php
 /**
- * @copyright 2021 Anna Larch <anna.larch@gmx.net>
+ * @copyright 2017, Georg Ehrke <oc.list@georgehrke.com>
  *
- * @author Anna Larch <anna.larch@gmx.net>
+ * @author Christoph Wurst <christoph@winzerhof-wurst.at>
+ * @author Georg Ehrke <oc.list@georgehrke.com>
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -20,25 +21,26 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  */
-namespace OCA\DAV\CalDAV;
+namespace OCP\Calendar;
 
-use OCP\Calendar\ICalendar;
-use OCP\Calendar\ICalendarProvider;
-use OCP\Constants;
+/**
+ * Interface ICalendar
+ *
+ * @since 13.0.0
+ */
+interface ICalendarQuery {
 
-class CalendarProvider implements ICalendarProvider {
+	public function getPattern(): string;
 
-	/** @var CalDavBackend */
-	private $calDavBackend;
+	public function setPattern(string $pattern): void;
 
-	/**
-	 * @param CalDavBackend $calDavBackend
-	 */
-	public function __construct(CalDavBackend $calDavBackend) {
-		$this->calDavBackend = $calDavBackend;
-	}
+	public function getSearchProperties(): array;
 
-	public function getCalendars(string $principalUri): array {
-		return $this->calDavBackend->getCalendarsForUser($principalUri);
-	}
+	public function setSearchProperty(string $value): void;
+
+	public function getOptions(): array;
+
+	public function getLimit(): int;
+
+	public function getOffset();
 }
