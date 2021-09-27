@@ -546,4 +546,11 @@ class RegistrationContext {
 	public function getTwoFactorProviders(): array {
 		return $this->twoFactorProviders;
 	}
+
+	/**
+	 * @return ServiceRegistration<ICalendarProvider>[]
+	 */
+	public function getCalendarProviders(): array {
+		return $this->calendarProviders;
+	}
 }
