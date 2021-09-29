@@ -127,6 +127,60 @@ class BundlingPlugin extends ServerPlugin {
 		}
 
 		$multiPartParser = new MultipartContentsParser($request);
+		$writtenFiles = [];
+
+		// $multiPartParser->eof()
+		while (!$multiPartParser->lastBoundary()) {
+			try {
+				[$headers, $content] = $multiPartParser->readNextPart();
+
+				if ((int)$headers['content-length'] !== strlen($content)) {
+					throw new BadRequest("Content read with different size than declared. Got " . $headers['content-length'] . ", expected" . strlen($content));
+				}
+
+				$node = $this->userFolder->newFile($headers['x-file-path'], $content);
+				$writtenFiles[$headers['x-file-path']] = $node->getSize();
+
+				if ((int)$headers['content-length'] !==  $node->getSize()) {
+					throw new BadRequest("Written file length is different than declared length. Got " . $headers['content-length'] . ", expected" .  $node->getSize());
+				}
+
+				// TODO - check md5 hash
+				// $context = hash_init('md5');
+				// hash_update_stream($context, $stream);
+				// echo hash_final($context);
+				// if ($header['x-file-md5'] !== hash_final($context)) {
+				// }
+			} catch (\Exception $e) {
+				throw $e;
+				$this->logger->error($e->getMessage(), ['path' => $header['x-file-path']]);
+			}
+		}
+
+		$response->setStatus(200);
+		$response->setBody(new JSONResponse([
+			$writtenFiles
+		]));
+
+		return false;
+
+		// $this->contentHandler = $this->getContentHandler($this->request);
+
+		// $multipleRequestsData = $this->parseBundleMetadata();
+
+		//Process bundle and send a multi-status response
+		// $result = $this->processBundle($multipleRequestsData);
+
+		// return $result;
+	}
+
+	public function handleBundleWithMetadata(RequestInterface $request, ResponseInterface $response) {
+		// Limit bundle upload to the /bundle endpoint
+		if ($request->getPath() !== "files/bundle") {
+			return true;
+		}
+
+		$multiPartParser = new MultipartContentsParser($request);
 
 		[$metadataHeaders, $rawMetadata] = $multiPartParser->getMetadata();
 

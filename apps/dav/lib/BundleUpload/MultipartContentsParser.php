@@ -41,6 +41,7 @@ class MultipartContentsParser {
 
 	/** @var string */
 	private $boundary = "";
+	private $lastBoundary = "";
 
     /**
      * @var Bool
@@ -57,6 +58,7 @@ class MultipartContentsParser {
         }
 
 		$this->boundary = '--'.$this->getBoundary($request->getHeader('Content-Type'))."\r\n";
+		$this->lastBoundary = '--'.$this->getBoundary($request->getHeader('Content-Type'))."--\r\n";
     }
 
     /**
@@ -188,6 +190,17 @@ class MultipartContentsParser {
         }
 
         return true;
+    }
+
+    public function lastBoundary() {
+        $content = fread($this->stream, strlen($this->lastBoundary));
+        $result = fseek($this->stream, -strlen($this->lastBoundary), SEEK_CUR);
+
+        if ($result === -1) {
+            throw new Exception("Unknown error while seeking content");
+        }
+
+        return $content === $this->lastBoundary;
     }
 
     /**
