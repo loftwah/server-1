@@ -2,8 +2,14 @@
 
 set -eu
 
+KB=${KB:-100}
+MB=${MB:-$((KB*1000))}
+
 NB=$1
 SIZE=$2
+
+CONCURRENCY=${CONCURRENCY:-1}
+BANDWIDTH=${BANDWIDTH:-$((100*MB/CONCURRENCY))}
 
 USER="admin"
 PASS="password"
@@ -13,74 +19,52 @@ BOUNDARY="boundary_$(openssl rand --hex 8)"
 LOCAL_FOLDER="/tmp/bundle_upload/${BOUNDARY}_${NB}_${SIZE}"
 REMOTE_FOLDER="/bundle_upload/${BOUNDARY}_${NB}_${SIZE}"
 
-
-files_ids=()
-metadata="<?xml version='1.0' encoding='UTF-8'?>
-	<d:multipart xmlns:d=\"DAV:\">"
-
 mkdir --parent "$LOCAL_FOLDER"
 
-# CREATE FILES AND METADATA
-for ((i=0; i<="$NB"; i++))
+for ((i=1; i<="$NB"; i++))
 do
-	printf "%s/$NB\r" "$i"
-
-	file_id=$(openssl rand --hex 8)
-	file_local_path="$LOCAL_FOLDER/$file_id.txt"
-	file_remote_path="$REMOTE_FOLDER/$file_id.txt"
+	file_name=$(openssl rand --hex 8)
+	file_local_path="$LOCAL_FOLDER/$file_name.txt"
+	file_remote_path="$REMOTE_FOLDER/$file_name.txt"
 	head -c "$SIZE" /dev/urandom > "$file_local_path"
 	file_mtime=$(stat -c %Y "$file_local_path")
 	file_hash=$(md5sum "$file_local_path" | awk '{ print $1 }')
 	file_size=$(du -sb "$file_local_path" | awk '{ print $1 }')
 
-	files_ids+=("$file_id")
-	metadata+="
-	<d:part>
-		<d:prop>
-			<d:oc-path>$file_remote_path</d:oc-path>
-			<d:oc-mtime>$file_mtime</d:oc-mtime>
-			<d:oc-id>$file_id</d:oc-id>
-			<d:oc-md5>$file_hash</d:oc-md5>
-			<d:oc-total-length>$file_size</d:oc-total-length>
-		</d:prop>
-	</d:part>"
-	# sleep 0.05
+	{
+		echo -en "--$BOUNDARY\r\n"
+		# echo -en "Content-ID: $file_name\r\n"
+		echo -en "X-File-Path: $file_remote_path\r\n"
+		echo -en "X-File-Mtime: $file_mtime\r\n"
+		# echo -en "X-File-Id: $file_id\r\n"
+		echo -en "X-File-Md5: $file_hash\r\n"
+		echo -en "Content-Length: $file_size\r\n"
+		echo -en "\r\n" >> "$UPLOAD_PATH"
+
+		cat "$file_local_path"
+		echo -en "\r\n" >> "$UPLOAD_PATH"
+	} >> "$UPLOAD_PATH"
 done
 
-printf "\n"
+echo -en "--$BOUNDARY--\r\n" >> "$UPLOAD_PATH"
 
-metadata+="</d:multipart>"
-metadata_size=$(echo -en "$metadata" | wc -c)
-
-# BUILD REQUEST
-echo -en "--$BOUNDARY\r
-Content-Type: text/xml; charset=utf-8\r
-Content-Length: $metadata_size\r
-\r
-$metadata" >> "$UPLOAD_PATH"
-
-for file_id in "${files_ids[@]}"
-do
-	echo -en "\r\n--$BOUNDARY\r\nContent-ID: $file_id\r\n\r\n" >> "$UPLOAD_PATH"
-	cat "$file_local_path" >> "$UPLOAD_PATH"
-done
-
-echo -en "\r\n--$BOUNDARY--\r\n" >> "$UPLOAD_PATH"
-
-# Create remote folder
+echo "Creating folder /${BOUNDARY}_${NB}_${SIZE}"
 curl \
 	-X MKCOL \
 	-k \
-	--cookie "XDEBUG_SESSION=MROW4A;path=/;" \
 	"https://$USER:$PASS@$SERVER/remote.php/dav/files/$USER/$REMOTE_FOLDER"
 
-curl \
+echo "Uploading $NB files with total size: $(du -sh "$UPLOAD_PATH" | cut -d '	' -f1)"
+echo "Local file is: $UPLOAD_PATH"
+blackfire curl \
 	-X POST \
 	-k \
+	--progress-bar \
+	--limit-rate "${BANDWIDTH}k" \
+	--cookie "XDEBUG_PROFILE=MROW4A;path=/;" \
 	-H "Content-Type: multipart/related; boundary=$BOUNDARY" \
-	--cookie "XDEBUG_SESSION=MROW4A;path=/;" \
 	--data-binary "@$UPLOAD_PATH" \
 	"https://$USER:$PASS@$SERVER/remote.php/dav/files/bundle"
 
-rm -rf "${LOCAL_FOLDER:?}"/*
+rm -rf "${LOCAL_FOLDER:?}"
 rm "$UPLOAD_PATH"
